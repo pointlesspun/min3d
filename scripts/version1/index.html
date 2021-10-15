@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>min3d demo</title>
+        <link rel="stylesheet" href="../../styles.css">
+        <script type="module" src="main.js"></script>
+    </head>
+
+    <body>
+        <div class="text-body">
+            <span><h1>Minimal "3D" Rendering Demo</h1></span>
+            
+            <div class="centered">
+                <canvas id="canvas" width="1024" height="786">
+                </canvas>
+            </div>
+            <div class="centered margin-top-16">
+                <label for="model-names">Select model:</label>
+                <select id="model-selection" name="model-names" id="model-names" >
+
+                    <option value="../../data/beetle.obj" selected>VW Beetle</option>
+                    <option value="../../data/male.obj">Male</option>
+                    <option value="../../data/skull.obj">Skull</option>
+                    <option value="../../data/suzanne.obj">Suzanne</option>
+                    <option value="../../data/teapot.obj" selected>Teapot</option>
+
+                </select>
+            </div>
+        </div>
+    </body>
+</html>
