@@ -4,19 +4,22 @@ Todo
 v1.0
 - Project points from monkey / teapot to image/canvas
     - [done] include requires, -> modules
-    - [in-progress] port vector3
     - [done] draw point to canvas
 	- [done] create view port / canvas
 	- [done] create view matrix
-	- [done]plot points using a view matrix	
-	- document / add to git
+	- [done] plot points using a view matrix	
+	- [done] document / add to git
 
 v2.0
-	- draw incrementally
-	- draw vertices as part of the draw face (so we can ignore 'backfacing vertices')
-	- ignore backfacing faces
-	- allow model rotation
-	- add version selection from index.html
+- [in-progress] port vector3
+
+- [done] draw incrementally
+- [done] draw vertices as part of the draw face (so we can ignore 'backfacing vertices')
+- [done] ignore backfacing faces
+- allow model rotation
+	- add quaternion
+- fetch loading progress
+- add version selection from index.html
 
 v3.0
 	- clip points against view frustrum

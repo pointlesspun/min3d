@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>min3d demo</title>
+        <link rel="stylesheet" href="../../styles.css">
+        <script type="module" src="main.js"></script>
+    </head>
+
+    <body>
+        <div class="text-body">
+            <span><h1>Minimal "3D" Rendering Demo, Version 2.0</h1></span>
+            
+            <div class="canvas-options-container">
+                <div class="canvas-container">
+                    <canvas id="canvas" width="1024" height="786">
+                    </canvas>
+                </div>
+                <div class="options-container">
+                    <div class="option">
+                        <label for="model-names">Select model:</label>
+                        <select id="model-selection" name="model-names" id="model-names" >
+        
+                            <option value="../../data/cube.obj" selected>Cube</option>
+                            <option value="../../data/male.obj">Male</option>
+                            <option value="../../data/skull.obj">Skull</option>
+                            <option value="../../data/suzanne.obj">Suzanne</option>
+                            <option value="../../data/teapot.obj" selected>Teapot</option>
+                            <option value="../../data/beetle.obj" selected>VW Beetle</option>
+                            
+                        </select>
+                    </div>
+
+                    <div class="option">
+                        <label for="cullBackFaces">Cull backfaces</label>
+                        <input type="checkbox" id="cullBackFaces" name="cullBackFaces" checked>
+                    </div>
+
+                    <div class="option">
+                        <div class="vector3">
+                            <span>Fov/Aspect:</span>
+                            <input type="number" id="projection-angle" class="vector3-element">
+                            <input type="number" id="aspect-angle" class="vector3-element"> 
+                        </div>                        
+                    </div>
+
+                    <div class="option">
+                        <div id="offset" name="offset" class="vector3">
+                            <span>Offset:</span>
+                            <input type="number" id="offset-x" class="vector3-element"> 
+                            <input type="number" id="offset-y" class="vector3-element"> 
+                            <input type="number" id="offset-z" class="vector3-element"> 
+                        </div>                        
+                    </div>
+
+                </div>
+            </div>
+            
+            <div class="centered">
+                <a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> 
+            </div>
+        </div>
+    </body>
+</html>
