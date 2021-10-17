@@ -4,7 +4,7 @@ import { Quaternion } from "./lib/Quaternion.js";
 import { Matrix44 } from "./lib/Matrix44.js";
 import { WaveFrontObject } from "./lib/WaveFrontObject.js";
 import { RenderObject } from "./lib/RenderObject.js";
-import { MathX } from "./lib/MathX.js";
+import { startFetch } from "./lib/Fetch.js";
 
 /**
  * A place to store loaded WaveFront objects
@@ -107,9 +107,18 @@ function fetchObject(objectName) {
 
         project(currentModel, appRendering);
     } else {
-        fetch(objectName)
-            .then(response => response.text())
-            .then(text => {
+            const progressUpdate = function(percentage) {
+                appRendering.clear();
+                appRendering.setColor(120,140,160);
+                if (percentage < 1) {
+                    appRendering.drawText(30, 30, `loading: ${objectName}... ${Math.round(percentage*100)}%`);
+                } else {
+                    appRendering.drawText(30, 30, `parsing: ${objectName}`);
+                }
+            };
+
+            startFetch(objectName, progressUpdate, (text) => {
+                appRendering.clear();
                 
                 const waveFrontObject = new WaveFrontObject().parse(text);
 
@@ -121,7 +130,7 @@ function fetchObject(objectName) {
                 updateRotationView(currentModel.euler);          
 
                 project(currentModel, appRendering);                
-            });            
+            });
     }
 }
 

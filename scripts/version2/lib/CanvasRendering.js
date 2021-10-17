@@ -16,6 +16,7 @@ export class CanvasRendering {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.context = this.canvas.getContext("2d");
+        this.context.font = "24px Arial Helvetica sans-serif";
     }
 
     /**
@@ -29,6 +30,7 @@ export class CanvasRendering {
     clear(r,g,b) {
         this.setColor(r || 20, g || 20, b || 60);
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height );
+        
         return this;
     }
 
@@ -81,6 +83,12 @@ export class CanvasRendering {
         ctx.stroke();
     }
 
+    drawText(x, y, text, font) {
+        if (font) {
+            this.context.font = font;
+        }
+        this.context.strokeText(text, x, y);
+    }
 
     /**
      * Test if the given face's back is facing the 'camera'. 
