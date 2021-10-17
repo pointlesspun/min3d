@@ -2,6 +2,7 @@ import { Matrix44 } from "./Matrix44.js";
 import { Vector3 } from "./Vector3.js";
 import { MathX } from "./MathX.js";
 import { WaveFrontObject } from "./WaveFrontObject.js";
+import { RenderObject } from "./RenderObject.js";
 
 /**
  * Wrapper around writing to a canvas
@@ -80,10 +81,24 @@ export class CanvasRendering {
         ctx.stroke();
     }
 
-    isFacingBackwards(model, face, center, translation, rotation) {
-        const faceNormal = MathX.rotate(face.normal, rotation);
-        const faceVertex = model.vertices[face.indices[0]].subVector(center);
-        const lookDirection = MathX.rotate(faceVertex, rotation).addVector(center).addVector(translation).normalized();
+
+    /**
+     * Test if the given face's back is facing the 'camera'. 
+     * 
+     * @param {RenderObject} renderObj 
+     * @param {*} face 
+     * @param {*} center 
+     * @returns 
+     */
+    isFacingBackwards(renderObj, face, center) {
+        const faceNormal = MathX.rotate(face.normal, renderObj.rotation);
+        
+        // take any vector from the face and translate it relative to the center of the render object
+        const faceVertex = renderObj.renderData.vertices[face.indices[0]].subVector(center);
+        
+        // calculate the direction from the camera towards this vertex, taking in account the object's rotation
+        // and translation
+        const lookDirection = MathX.rotate(faceVertex, renderObj.rotation).addVector(center).addVector(renderObj.translation).normalized();
 
         return faceNormal.dot(lookDirection) >= 0;
     }
@@ -91,30 +106,32 @@ export class CanvasRendering {
     /**
      * Draw the edges of all the faces in the given objectInfo's data
      * 
-     * @param {WaveFrontObject} objectInfo 
+     * @param {RenderObject} renderObj 
      * @param {Matrix44} projection projection matrix used
      * @param {Vector3} offset offset added to each of the face's vertices
      */
-    drawWireFrame(objectInfo, offset, rotation, projection, startIndex, maxTime, drawVertices, cullBackfacing) {
+    drawWireFrame(renderObj, projection, startIndex, maxTime, cullBackfacing) {
         const width = this.canvas.width;
         const height = this.canvas.height;
+        const renderData = renderObj.renderData;
 
         var index = startIndex || 0;
         var startTime = Date.now();
 
-        while (index < objectInfo.faces.length) {
-            const center = objectInfo.bounds.min.addVector(objectInfo.span().div(2));
-            const face =  objectInfo.faces[index];
+        while (index < renderData.faces.length) {
+            const center = renderData.bounds.min.addVector(renderData.span().div(2));
+            const face =  renderData.faces[index];
             
-            if (!cullBackfacing || !this.isFacingBackwards(objectInfo, face, center, offset, rotation))
+            if (!cullBackfacing || !this.isFacingBackwards(renderObj, face, center))
             {
                 const vertexIndices = face.indices;
                                 
                 const polyVertices = vertexIndices.map( idx => {
-                    const vertex = objectInfo.vertices[idx].subVector(center);
-                    const rotatedVertex = MathX.rotate(vertex, rotation).addVector(center);
+                    // rotate the vertex relative to the local center (ie center of the render object)
+                    const vertex = renderData.vertices[idx].subVector(center);
+                    const rotatedVertex = MathX.rotate(vertex, renderObj.rotation).addVector(center);
                     
-                    return MathX.multiplyVxM(rotatedVertex.addVector(offset), projection);
+                    return MathX.multiplyVxM(rotatedVertex.addVector(renderObj.translation), projection);
                 });
         
                 if (!polyVertices.some((projected) => 
@@ -134,9 +151,9 @@ export class CanvasRendering {
         
                         this.drawLine(x1, y1, x2, y2);
 
-                        if (drawVertices) {
-                            this.context.fillRect(x1, y1, 1, 1);
-                        }
+                        // draw the vertex on the start of the line (don't need to draw the end vertex as
+                        // that will be the 'start vertex' in the next iteration)
+                        this.context.fillRect(x1, y1, 1, 1);
                     }
                 }
             }

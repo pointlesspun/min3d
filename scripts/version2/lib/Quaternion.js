@@ -16,13 +16,14 @@ export class Quaternion {
     }
 
     magnitude() {
-        return Math.sqrt(x*x + y * y + z * z + w * w);
+        return Math.sqrt(this.x*this.x + this.y * this.y + this.z * this.z + this.w * this.w);
     }
 
     normalized() {
         var mag = this.magnitude();
 
-        if (mag !== 0) {
+        // near 0 ?
+        if (mag > -0.0000001 && mag < 0.0000001) {
             // return identity
             return new Quaternion();
         }
@@ -34,6 +35,9 @@ export class Quaternion {
         return Quaternion.multiply(this, other);
     }
     
+
+
+
     static multiply(q1, q2) {
         return new Quaternion(
             q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x,
@@ -63,5 +67,32 @@ export class Quaternion {
     static fromAxisAngle(axis, angle) {
         var s = Math.sin(angle / 2);
         return new Quaternion(axis.x * s, axis.y * s, axis.z * s, Math.cos(angle / 2));
+    }
+
+    // from http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+    static toEuler(quaternion) {
+        let x = 0;
+        let y = 0;
+        let z = 0;
+        const test = quaternion.x*quaternion.y + quaternion.z*quaternion.w;
+
+        if (test > 0.499) { // singularity at north pole
+            y = 2 * Math.atan2(quaternion.x,quaternion.w);
+            x  = Math.PI/2;
+        }
+        else if (test < -0.499) { // singularity at south pole
+            y = -2 * Math.atan2(quaternion.x,quaternion.w);
+            x = - Math.PI/2;
+        }
+        else {
+            const sqx = quaternion.x*quaternion.x;
+            const sqy = quaternion.y*quaternion.y;
+            const sqz = quaternion.z*quaternion.z;
+            y = Math.atan2(2*quaternion.y*quaternion.w-2*quaternion.x*quaternion.z , 1 - 2*sqy - 2*sqz);
+            x = Math.asin(2*test);
+            z = Math.atan2(2*quaternion.x*quaternion.w-2*quaternion.y*quaternion.z , 1 - 2*sqx - 2*sqz);
+        }
+
+        return new Vector3(x,y,z);
     }
 } 

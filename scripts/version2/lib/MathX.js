@@ -31,6 +31,8 @@ export const MathX = {
 
     toRadians : (angle) => (angle * Math.PI) / 180,
 
+    toAngles: (rad) => rad * (180 / Math.PI),
+
     rotate: (value, rotation) => {
             const num12 = rotation.x + rotation.x;
             const num2 = rotation.y + rotation.y;

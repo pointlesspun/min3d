@@ -4,6 +4,7 @@ import { Quaternion } from "./lib/Quaternion.js";
 import { Matrix44 } from "./lib/Matrix44.js";
 import { WaveFrontObject } from "./lib/WaveFrontObject.js";
 import { RenderObject } from "./lib/RenderObject.js";
+import { MathX } from "./lib/MathX.js";
 
 /**
  * A place to store loaded WaveFront objects
@@ -35,7 +36,6 @@ const rotationZInput = document.getElementById("rotation-z");
 
 var cullBackfacing = true;
 var currentModel = new RenderObject();
-var rotationEuler = new Vector3(0,0,0);
 var projectionAngle = 90;
 var projectionAspect = 1.0;
 var handle = undefined;
@@ -61,7 +61,7 @@ function project(model, rendering) {
         rendering.setStrokeColor(30, 75, 205);
         rendering.setFillColor(200, 200, 245);
 
-        index = rendering.drawWireFrame(model.renderData, model.translation, model.rotation, projection, index, 90, true, cullBackfacing);
+        index = rendering.drawWireFrame(model, projection, index, 90, cullBackfacing);
 
         if (index >= model.renderData.faces.length) {
             clearInterval(handle);
@@ -80,7 +80,12 @@ function updateOffsetView(newOffset) {
 function calculateOffset(objectInfo) {
     const span = objectInfo.span();
     return new Vector3(0, -(objectInfo.bounds.min.y + span.y / 2.0), -(span.z + span.y/2.5));
+}
 
+function updateRotationView(euler) {
+    rotationXInput.value = euler.x;
+    rotationYInput.value = euler.y;
+    rotationZInput.value = euler.z;
 }
 
 /**
@@ -96,10 +101,11 @@ function calculateOffset(objectInfo) {
 function fetchObject(objectName) {
     currentModel = objectMap[objectName];
 
-    if (currentModel) {
-        project(currentModel, appRendering);
+    if (currentModel) {        
         updateOffsetView(currentModel.translation);
-                
+        updateRotationView(currentModel.euler);                  
+
+        project(currentModel, appRendering);
     } else {
         fetch(objectName)
             .then(response => response.text())
@@ -111,8 +117,10 @@ function fetchObject(objectName) {
 
                 objectMap[objectName] = currentModel;
              
-                project(currentModel, appRendering);
-                updateOffsetView(currentModel.translation);                
+                updateOffsetView(currentModel.translation);      
+                updateRotationView(currentModel.euler);          
+
+                project(currentModel, appRendering);                
             });            
     }
 }
@@ -134,6 +142,7 @@ function updateNumberField(inputField, setValue, getValue) {
         
     } catch (error) {
         inputField.value = getValue();
+        console.log(`error while updating number: ${error}`);
     }
 }
 
@@ -161,23 +170,23 @@ offsetZInput.addEventListener("change", () => updateNumberField(offsetZInput, (v
 
 
 const updateX = (v) => {
-    rotationEuler.x = v; 
-    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+    currentModel.euler.x = v; 
+    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
 };
 
 const updateY = (v) => {
-    rotationEuler.y = v; 
-    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+    currentModel.euler.y = v; 
+    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
 }
 
 const updateZ = (v) => {
-    rotationEuler.z = v; 
-    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+    currentModel.euler.z = v; 
+    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
 }
 
-rotationXInput.addEventListener("change", () =>  updateNumberField(rotationXInput, (v) => updateX(v), () => rotationEuler.x));
-rotationYInput.addEventListener("change", () => updateNumberField(rotationYInput, (v) => updateY(v), () => rotationEuler.y));
-rotationZInput.addEventListener("change", () => updateNumberField(rotationZInput, (v) => updateZ(v), () => rotationEuler.z));    
+rotationXInput.addEventListener("change", () =>  updateNumberField(rotationXInput, (v) => updateX(v), () => currentModel.euler.x));
+rotationYInput.addEventListener("change", () => updateNumberField(rotationYInput, (v) => updateY(v), () => currentModel.euler.y));
+rotationZInput.addEventListener("change", () => updateNumberField(rotationZInput, (v) => updateZ(v), () => currentModel.euler.z));    
 
 projectionAngleInput.value = projectionAngle;
 projectionAspectInput.value = projectionAspect;
@@ -187,4 +196,4 @@ rotationYInput.value = 0;
 rotationZInput.value = 0;
 
 // load the default object
- fetchObject(modelSelection[modelSelection.selectedIndex].value);
+fetchObject(modelSelection[modelSelection.selectedIndex].value);
