@@ -1,7 +1,9 @@
 import { CanvasRendering } from "./lib/CanvasRendering.js";
 import { Vector3 } from "./lib/Vector3.js";
+import { Quaternion } from "./lib/Quaternion.js";
 import { Matrix44 } from "./lib/Matrix44.js";
 import { WaveFrontObject } from "./lib/WaveFrontObject.js";
+import { RenderObject } from "./lib/RenderObject.js";
 
 /**
  * A place to store loaded WaveFront objects
@@ -20,16 +22,20 @@ const modelSelection = document.getElementById("model-selection");
 
 const cullBackfacingCheckbox = document.getElementById("cullBackFaces");
 
+const projectionAngleInput = document.getElementById("projection-angle");
+const projectionAspectInput = document.getElementById("aspect-angle");
+
 const offsetXInput = document.getElementById("offset-x");
 const offsetYInput = document.getElementById("offset-y");
 const offsetZInput = document.getElementById("offset-z");
 
-const projectionAngleInput = document.getElementById("projection-angle");
-const projectionAspectInput = document.getElementById("aspect-angle");
+const rotationXInput = document.getElementById("rotation-x");
+const rotationYInput = document.getElementById("rotation-y");
+const rotationZInput = document.getElementById("rotation-z");
 
 var cullBackfacing = true;
-var currentModel = null;
-var offset = new Vector3(0, 0, 0);
+var currentModel = new RenderObject();
+var rotationEuler = new Vector3(0,0,0);
 var projectionAngle = 90;
 var projectionAspect = 1.0;
 var handle = undefined;
@@ -37,10 +43,10 @@ var handle = undefined;
 /**
  * Project the WaveFront object to the given rendering
  * 
- * @param {WaveFrontObject} objectInfo 
+ * @param {RenderObject} model 
  * @param {CanvasRendering} rendering
  */
-function project(objectInfo, objectOffset, rendering) {
+function project(model, rendering) {
     const projection = new Matrix44().projectionFoV(projectionAngle, projectionAspect, 0.2, 1000, false);
 
     var index = 0;
@@ -55,9 +61,9 @@ function project(objectInfo, objectOffset, rendering) {
         rendering.setStrokeColor(30, 75, 205);
         rendering.setFillColor(200, 200, 245);
 
-        index = rendering.drawWireFrame(objectInfo, projection, objectOffset, index, 90, true, cullBackfacing);
+        index = rendering.drawWireFrame(model.renderData, model.translation, model.rotation, projection, index, 90, true, cullBackfacing);
 
-        if (index >= objectInfo.faces.length) {
+        if (index >= model.renderData.faces.length) {
             clearInterval(handle);
         }
     };
@@ -72,7 +78,7 @@ function updateOffsetView(newOffset) {
 }
 
 function calculateOffset(objectInfo) {
-    const span = objectInfo.bounds.max.subVector(objectInfo.bounds.min);
+    const span = objectInfo.span();
     return new Vector3(0, -(objectInfo.bounds.min.y + span.y / 2.0), -(span.z + span.y/2.5));
 
 }
@@ -91,26 +97,22 @@ function fetchObject(objectName) {
     currentModel = objectMap[objectName];
 
     if (currentModel) {
-        project(currentModel.waveFrontObject, currentModel.offset, appRendering);
-        updateOffsetView(currentModel.offset);
+        project(currentModel, appRendering);
+        updateOffsetView(currentModel.translation);
                 
     } else {
         fetch(objectName)
             .then(response => response.text())
             .then(text => {
-
+                
                 const waveFrontObject = new WaveFrontObject().parse(text);
-                offset = calculateOffset(waveFrontObject);
 
-                currentModel = {
-                    waveFrontObject,
-                    offset 
-                };
+                currentModel = new RenderObject(waveFrontObject,  calculateOffset(waveFrontObject));
 
                 objectMap[objectName] = currentModel;
              
-                project(currentModel.waveFrontObject, currentModel.offset, appRendering);
-                updateOffsetView(currentModel.offset);                
+                project(currentModel, appRendering);
+                updateOffsetView(currentModel.translation);                
             });            
     }
 }
@@ -124,7 +126,7 @@ function updateNumberField(inputField, setValue, getValue) {
                 setValue(newValue);
 
                 appRendering.clear();
-                project(currentModel.waveFrontObject, currentModel.offset, appRendering);
+                project(currentModel, appRendering);
             }
         } else {
             inputField.value = getValue();
@@ -146,18 +148,43 @@ cullBackfacingCheckbox.addEventListener("click", () => {
     
     if (currentModel) {
         appRendering.clear();
-        project(currentModel.waveFrontObject, currentModel.offset, appRendering);
+        project(currentModel, appRendering);
     }
 });
 
-offsetXInput.addEventListener("change", () =>  updateNumberField(offsetXInput, (v) => { offset.x = v }, () => offset.x));
-offsetYInput.addEventListener("change", () => updateNumberField(offsetYInput, (v) => { offset.y = v }, () => offset.y));
-offsetZInput.addEventListener("change", () => updateNumberField(offsetZInput, (v) => { offset.z = v }, () => offset.z));    
 projectionAngleInput.addEventListener("change", () => updateNumberField(projectionAngleInput, (v) => { projectionAngle = v }, () => projectionAngle));    
 projectionAspectInput.addEventListener("change", () => updateNumberField(projectionAspectInput, (v) => { projectionAspect = v }, () => projectionAspect));    
 
+offsetXInput.addEventListener("change", () =>  updateNumberField(offsetXInput, (v) => { currentModel.translation.x = v }, () => currentModel.translation.x));
+offsetYInput.addEventListener("change", () => updateNumberField(offsetYInput, (v) => { currentModel.translation.y = v }, () => currentModel.translation.y));
+offsetZInput.addEventListener("change", () => updateNumberField(offsetZInput, (v) => { currentModel.translation.z = v }, () => currentModel.translation.z));    
+
+
+const updateX = (v) => {
+    rotationEuler.x = v; 
+    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+};
+
+const updateY = (v) => {
+    rotationEuler.y = v; 
+    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+}
+
+const updateZ = (v) => {
+    rotationEuler.z = v; 
+    currentModel.rotation = Quaternion.fromEuler(rotationEuler);
+}
+
+rotationXInput.addEventListener("change", () =>  updateNumberField(rotationXInput, (v) => updateX(v), () => rotationEuler.x));
+rotationYInput.addEventListener("change", () => updateNumberField(rotationYInput, (v) => updateY(v), () => rotationEuler.y));
+rotationZInput.addEventListener("change", () => updateNumberField(rotationZInput, (v) => updateZ(v), () => rotationEuler.z));    
+
 projectionAngleInput.value = projectionAngle;
 projectionAspectInput.value = projectionAspect;
+
+rotationXInput.value = 0;
+rotationYInput.value = 0;
+rotationZInput.value = 0;
 
 // load the default object
  fetchObject(modelSelection[modelSelection.selectedIndex].value);

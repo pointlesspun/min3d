@@ -16,16 +16,20 @@ v2.0
 - [done] draw incrementally
 - [done] draw vertices as part of the draw face (so we can ignore 'backfacing vertices')
 - [done] ignore backfacing faces
-- allow model rotation
-	- add quaternion
+- [done] allow model rotation
+	- [done] add quaternion
 - fetch loading progress
-- add version selection from index.html
+- add switch for draw incrementally / immediate
+- [done] add version selection from index.html
+- document
 
 v3.0
-	- clip points against view frustrum
-		- extract view frustrum from view matrix
-	- allow model translation 
-	- allow model scaling
+- clip points against view frustrum
+    - extract view frustrum from view matrix
+- add model transform
+	- model translation 
+	- model scaling
+	- model rotation
 
 v4.0
 	- sort faces by distance from camera

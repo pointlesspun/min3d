@@ -31,11 +31,14 @@ export class WaveFrontObject {
         max : new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE)
     };
 
+    span() {
+        return this.bounds.max.subVector(this.bounds.min);
+    }
+
     /**
      * Parse the given text (which is assumed to be proper WaveFrontData)
      * @param {string} text 
      */
-
     parse(text) {
         var lineArray = text.split('\n');
         
@@ -51,11 +54,8 @@ export class WaveFrontObject {
                 this.vertices.push(vector);
             }
             else if (line.startsWith("vn ")) {
-                let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'v' && s !== '\r');
+                let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'vn' && s !== '\r');
                 let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
-
-                this.bounds.min = this.bounds.min.min(vector);
-                this.bounds.max = this.bounds.max.max(vector);
 
                 this.normals.push(vector);
             }

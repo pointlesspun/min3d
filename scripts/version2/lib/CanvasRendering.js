@@ -80,6 +80,14 @@ export class CanvasRendering {
         ctx.stroke();
     }
 
+    isFacingBackwards(model, face, center, translation, rotation) {
+        const faceNormal = MathX.rotate(face.normal, rotation);
+        const faceVertex = model.vertices[face.indices[0]].subVector(center);
+        const lookDirection = MathX.rotate(faceVertex, rotation).addVector(center).addVector(translation).normalized();
+
+        return faceNormal.dot(lookDirection) >= 0;
+    }
+
     /**
      * Draw the edges of all the faces in the given objectInfo's data
      * 
@@ -87,22 +95,27 @@ export class CanvasRendering {
      * @param {Matrix44} projection projection matrix used
      * @param {Vector3} offset offset added to each of the face's vertices
      */
-    drawWireFrame(objectInfo, projection, offset, startIndex, maxTime, drawVertices, cullBackfacing) {
+    drawWireFrame(objectInfo, offset, rotation, projection, startIndex, maxTime, drawVertices, cullBackfacing) {
         const width = this.canvas.width;
         const height = this.canvas.height;
-        const lookDirection = offset.hasLength() ? offset.mult(1).normalized() : new Vector3(0, 0, 1);
 
         var index = startIndex || 0;
         var startTime = Date.now();
 
         while (index < objectInfo.faces.length) {
+            const center = objectInfo.bounds.min.addVector(objectInfo.span().div(2));
             const face =  objectInfo.faces[index];
             
-            if (!cullBackfacing || face.normal.dot(lookDirection) < 0) 
+            if (!cullBackfacing || !this.isFacingBackwards(objectInfo, face, center, offset, rotation))
             {
                 const vertexIndices = face.indices;
-
-                const polyVertices = vertexIndices.map( idx => MathX.multiplyVxM(objectInfo.vertices[idx].addVector(offset), projection));
+                                
+                const polyVertices = vertexIndices.map( idx => {
+                    const vertex = objectInfo.vertices[idx].subVector(center);
+                    const rotatedVertex = MathX.rotate(vertex, rotation).addVector(center);
+                    
+                    return MathX.multiplyVxM(rotatedVertex.addVector(offset), projection);
+                });
         
                 if (!polyVertices.some((projected) => 
                     projected.x < -1 || projected.x > 1 || projected.y < -1 || projected.y > 1))

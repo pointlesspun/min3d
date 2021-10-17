@@ -27,5 +27,28 @@ export const MathX = {
                 + matrix.values[3][3];
 
         return (w != 1) ? result.div(w) : result;
-    }
+    },
+
+    toRadians : (angle) => (angle * Math.PI) / 180,
+
+    rotate: (value, rotation) => {
+            const num12 = rotation.x + rotation.x;
+            const num2 = rotation.y + rotation.y;
+            const num = rotation.z + rotation.z;
+            const num11 = rotation.w * num12;
+            const num10 = rotation.w * num2;
+            const num9 = rotation.w * num;
+            const num8 = rotation.x * num12;
+            const num7 = rotation.x * num2;
+            const num6 = rotation.x * num;
+            const num5 = rotation.y * num2;
+            const num4 = rotation.y * num;
+            const num3 = rotation.z * num;
+            const num15 = ((value.x * ((1 - num5) - num3)) + (value.y * (num7 - num9))) + (value.z * (num6 + num10));
+            const num14 = ((value.x * (num7 + num9)) + (value.y * ((1 - num8) - num3))) + (value.z * (num4 - num11));
+            const num13 = ((value.x * (num6 - num10)) + (value.y * (num4 + num11))) + (value.z * ((1 - num8) - num5));
+
+            return new Vector3(num15, num14, num13);
+        }
+
 }

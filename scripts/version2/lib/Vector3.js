@@ -3,10 +3,12 @@
  */
 export class Vector3 {
 
-    x = 0;
-    y = 0; 
-    z = 0;
-    
+    static forward = Object.freeze(new Vector3(0, 0, 1));
+    static back = Object.freeze(new Vector3(0, 0,-1));
+    static left = Object.freeze(new Vector3(-1, 0, 0));
+    static right = Object.freeze(new Vector3(1, 0, 0));
+    static up = Object.freeze(new Vector3(0, 1, 0));
+
     constructor(x,y,z) {
         this.x = x;
         this.y = y;
