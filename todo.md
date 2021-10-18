@@ -19,9 +19,9 @@ v2.0
 - [done] allow model rotation
 	- [done] add quaternion
 - [done] fetch loading progress
-- add switch for draw incrementally / immediate
+- [done] add switch for draw incrementally / immediate
 - [done] add version selection from index.html
-- document
+- document / fix links and so on
 
 v3.0
 	- sort faces by distance from camera

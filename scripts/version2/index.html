@@ -17,71 +17,69 @@
                     </canvas>
                 </div>
                 <div class="options-container">
-                    <div class="option">
-                        <label for="model-names" class="option-label">Select model:</label>
-                        <select id="model-selection" name="model-names" id="model-names" >
-        
-                            <!--
-                                * BeetleVW: dikiachmadp@https://free3d.com
-                                * Cube: press save after blender opens...
-                                * Skull: printable_models@https://free3d.com
-                                * Suzanne: blender3d
-                                * Teapot: utah teapot... (Martin Newell)
-                                * Male: nixor@https://free3d.com
-                            -->
+                    <div class="options-labels-container">
+                        <span class="option-label">Select model:</span>
+                        <span class="option-label">Cull backfaces:</span>
+                        <span class="option-label">Draw time:</span>
+                        <span class="option-label">Fov/Aspect:</span>
+                        <span class="option-label">Translation:</span>
+                        <span class="option-label">Rotation:</span>
+                        <span class="option-label"><a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> </span>
+                    </div>
 
-                            <option value="../../data/cube.obj">Cube</option>
-                            <option value="../../data/male.obj">Male</option>
-                            <option value="../../data/skull.obj">Skull</option>
-                            <option value="../../data/suzanne.obj">Suzanne</option>
-                            <option value="../../data/teapot.obj" selected>Teapot</option>
-                            <option value="../../data/beetle.obj">VW Beetle</option>
-                            
+                    <div class="options-values-container">
+
+                            <div class="option">
+                                <select id="model-selection" name="model-names" id="model-names" >            
+                                    <!--
+                                        * BeetleVW: dikiachmadp@https://free3d.com
+                                        * Cube: press save after blender opens...
+                                        * Skull: printable_models@https://free3d.com
+                                        * Suzanne: blender3d
+                                        * Teapot: utah teapot... (Martin Newell)
+                                        * Male: nixor@https://free3d.com
+                                    -->
+
+                                    <option value="../../data/cube.obj">Cube</option>
+                                    <option value="../../data/male.obj">Male</option>
+                                    <option value="../../data/skull.obj">Skull</option>
+                                    <option value="../../data/suzanne.obj">Suzanne</option>
+                                    <option value="../../data/teapot.obj" selected>Teapot</option>
+                                    <option value="../../data/beetle.obj">VW Beetle</option>
+                                </select>
+                            </div>
+
+                            <div class="option">
+                                <input type="checkbox" id="cullBackFaces" name="cullBackFaces" checked>
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="draw-time" class="number-field">
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="projection-angle" class="number-field">
+                                <input type="number" id="aspect-angle" class="number-field">    
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="offset-x" class="number-field" step="0.25"> 
+                                <input type="number" id="offset-y" class="number-field" step="0.25"> 
+                                <input type="number" id="offset-z" class="number-field" step="0.25"> 
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="rotation-x" class="number-field" step="5" > 
+                                <input type="number" id="rotation-y" class="number-field" step="5"> 
+                                <input type="number" id="rotation-z" class="number-field" step="5"> 
+                            </div>
+
                         </select>
                     </div>
-
-                    <div class="option">
-                        <label for="cullBackFaces" class="option-label">Cull backfaces</label>
-                        <input type="checkbox" id="cullBackFaces" name="cullBackFaces" checked>
-                    </div>
-
-                    <div class="option">
-                        <span class="option-label">Draw time:</span>
-                        <input type="number" id="draw-time" class="number-field">
-                    </div>
-
-                    <div class="option">
-                        <div class="vector3">
-                            <span class="option-label">Fov/Aspect:</span>
-                            <input type="number" id="projection-angle" class="number-field">
-                            <input type="number" id="aspect-angle" class="number-field"> 
-                        </div>                        
-                    </div>
-
-                    <div class="option">
-                        <div id="offset" name="offset" class="vector3">
-                            <span class="option-label">Offset:</span>
-                            <input type="number" id="offset-x" class="number-field"> 
-                            <input type="number" id="offset-y" class="number-field"> 
-                            <input type="number" id="offset-z" class="number-field"> 
-                        </div>                        
-                    </div>
-
-                    <div class="option">
-                        <div id="rotation" name="rotation" class="vector3">
-                            <span class="option-label">Rotation:</span>
-                            <input type="number" id="rotation-x" class="number-field"> 
-                            <input type="number" id="rotation-y" class="number-field"> 
-                            <input type="number" id="rotation-z" class="number-field"> 
-                        </div>                        
-                    </div>
-
                 </div>
             </div>
             
-            <div class="centered">
-                <a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> 
-            </div>
+            
         </div>
     </body>
 </html>
