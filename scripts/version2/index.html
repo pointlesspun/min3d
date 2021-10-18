@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>min3d demo</title>
+        <link rel="stylesheet" href="../../styles.css">
+        <script type="module" src="main.js"></script>
+    </head>
+
+    <body>
+        <div class="text-body">
+            <span><h1>Minimal "3D" Rendering Demo, Version 2.0</h1></span>
+            
+            <div class="canvas-options-container">
+                <div class="canvas-container">
+                    <canvas id="canvas" width="1024" height="786">
+                    </canvas>
+                </div>
+                <div class="options-container">
+                    <div class="options-labels-container">
+                        <span class="option-label">Select model:</span>
+                        <span class="option-label">Cull backfaces:</span>
+                        <span class="option-label">Draw time:</span>
+                        <span class="option-label">Fov/Aspect:</span>
+                        <span class="option-label">Camera pos:</span>
+                        <span class="option-label">Rotation:</span>
+                        <span class="option-label"><a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> </span>
+                    </div>
+
+                    <div class="options-values-container">
+
+                            <div class="option">
+                                <select id="model-selection" name="model-names" id="model-names" >            
+                                    <!--
+                                        * BeetleVW: dikiachmadp@https://free3d.com
+                                        * Cube: press save after blender opens...
+                                        * Skull: printable_models@https://free3d.com
+                                        * Suzanne: blender3d
+                                        * Teapot: utah teapot... (Martin Newell)
+                                        * Male: nixor@https://free3d.com
+                                    -->
+
+                                    <option value="cube.obj: Cube by pressing 'save' after Blender starts...">Cube</option>
+                                    <option value="male.obj: Male model by nixor@free3d.com">Male</option>
+                                    <option value="skull.obj: Skull by printable_models@free3d.com">Skull</option>
+                                    <option value="suzanne.obj: Suzanne, Blender's mascot Blender.org">Suzanne</option>
+                                    <option value="teapot.obj: Utah teapot by Martin Newell" selected>Teapot</option>
+                                    <option value="beetle.obj: VW Beetle by dikiachmadp@free3d.com">VW Beetle</option>
+                                </select>
+                            </div>
+
+                            <div class="option">
+                                <input type="checkbox" id="cullBackFaces" name="cullBackFaces" checked>
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="draw-time" class="number-field">
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="projection-angle" class="number-field">
+                                <input type="number" id="aspect-angle" class="number-field">    
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="offset-x" class="number-field" step="0.25"> 
+                                <input type="number" id="offset-y" class="number-field" step="0.25"> 
+                                <input type="number" id="offset-z" class="number-field" step="0.25"> 
+                            </div>
+
+                            <div class="option">
+                                <input type="number" id="rotation-x" class="number-field" step="5" > 
+                                <input type="number" id="rotation-y" class="number-field" step="5"> 
+                                <input type="number" id="rotation-z" class="number-field" step="5"> 
+                            </div>
+
+                        </select>
+                    </div>
+                </div>
+            </div>
+       </div>
+    </body>
+</html>
