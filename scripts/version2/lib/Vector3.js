@@ -15,14 +15,26 @@ export class Vector3 {
         this.z = z;
     }
 
+    /**
+     * 
+     * @returns {boolean} true if any of the components have a non zero length
+     */
     hasLength() {
         return this.x !== 0 || this.y !== 0 || this.z !== 0;
     }
 
+    /**
+     * 
+     * @returns {number} length of this vector
+     */
     length() {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
+    /**
+     * 
+     * @returns {Vector3} a new unit vector. If the existing vector has length 0 a default vector (0,0,1) will be returned
+     */
     normalized() {
         var length = this.length();
 
@@ -104,7 +116,7 @@ export class Vector3 {
     }
 
     /**
-     * 
+     * Returns the cross product of this vector with the other vector
      * @param {Vector3} other 
      * @returns 
      */
@@ -116,6 +128,7 @@ export class Vector3 {
         );
     }
 
+    /** @returns {number} dot product of this with the other vector */
     dot(other) {
         return this.x * other.x + this.y * other.y + this.z * other.z;
     }

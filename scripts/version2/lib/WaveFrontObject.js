@@ -1,4 +1,5 @@
 
+import { Face } from "./Face.js";
 import { Vector3 } from "./Vector3.js";
 
 /**
@@ -12,8 +13,8 @@ export class WaveFrontObject {
     vertices = [];
 
     /**
-     * Array of Vector3s representing the normals of the faces
-     */
+     * Array of Vector3s representing the normals of the vertices on the faces (currently not used) 
+     *     */
      normals = [];
 
 
@@ -72,10 +73,7 @@ export class WaveFrontObject {
 
                 const normal = v1_v2.cross(v2_v3).normalized();
 
-                this.faces.push({
-                    indices: faceElements.map( data => data.vertex),
-                    normal: normal 
-                });
+                this.faces.push(new Face(faceElements.map( data => data.vertex), normal));
             }
         }
 

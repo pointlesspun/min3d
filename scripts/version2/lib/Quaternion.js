@@ -31,13 +31,21 @@ export class Quaternion {
         return new Quaternion(this.x / mag, this.y / mag, this.z / mag, this.w / mag);
     }
 
+    /**
+     * Multiplies this with the other
+     * @param {Quaternion} other 
+     * @returns 
+     */
     mult(other) {
         return Quaternion.multiply(this, other);
     }
     
-
-
-
+    /**
+     * Multiplies two quaternions
+     * @param {Quaternion} q1 
+     * @param {Quaternion} q2 
+     * @returns a new quaternion
+     */
     static multiply(q1, q2) {
         return new Quaternion(
             q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x,
@@ -48,7 +56,7 @@ export class Quaternion {
     }
 
     /**
-     * 
+     * Creates a quaternion from the given set of euler angles
      * @param {Vector3} angles 
      * @returns 
      */

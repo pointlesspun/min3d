@@ -1,19 +1,27 @@
 
 /**
+ * Iterative Fetch implementation allowing for progress tracking. The fetched resource is assumed to 
+ * be a text file. Call begin() then followed by updates() until isDone() returns true. Read 
+ * the object's result to get the text data.
+ * 
  * Based off https://javascript.info/fetch-progress
  */
 export class Fetch {
+
     constructor(uri) {
         this.uri = uri;
         this.received = 0;
     }
 
+    /**
+     * Starts the fetch process 
+     * @returns this
+     */
     async begin() {
         let response = await fetch(this.uri);
 
         this.reader = response.body.getReader();
         
-        // Step 2: get total length
         this.length = +response.headers.get('Content-Length');
 
         this.chunks = [];
@@ -23,6 +31,10 @@ export class Fetch {
         return this;
     }
 
+    /**
+     * Updates the fetch process if fetching the resource is not done yet
+     * @returns this
+     */
     async update() {
         if (!this.isDone() && this.reader) {
             const {done, value} = await this.reader.read();
@@ -32,7 +44,7 @@ export class Fetch {
                 let position = 0;
          
                 for(let chunk of this.chunks) {
-                    chunksAll.set(chunk, position); // (4.2)
+                    chunksAll.set(chunk, position); 
                     position += chunk.length;
                 }
 
@@ -55,6 +67,15 @@ export class Fetch {
     }
 }
 
+/**
+ * Wrapper around a Fetch request, retrieves the text resource at the given uri and calls the
+ * provided callbacks as needed
+ * 
+ * @param {string} uri 
+ * @param {function(number)} progressCallback 
+ * @param {function(string)} onComplete 
+ * @param {function(error)} onError 
+ */
 export function startFetch(uri, progressCallback, onComplete, onError) {
 
     const fetchRequest = new Fetch(uri);

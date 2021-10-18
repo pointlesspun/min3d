@@ -3,6 +3,7 @@ import { Vector3 } from "./Vector3.js";
 import { MathX } from "./MathX.js";
 import { WaveFrontObject } from "./WaveFrontObject.js";
 import { RenderObject } from "./RenderObject.js";
+import { Quaternion } from "./Quaternion.js";
 
 /**
  * Wrapper around writing to a canvas
@@ -46,11 +47,23 @@ export class CanvasRendering {
         this.context.strokeStyle = value;
     }
 
+    /** 
+     * Sets the color of the stroke style 
+     * @param {number} r 
+     * @param {number} g 
+     * @param {number} b 
+     */
     setStrokeColor(r, g, b) {
         const value = `rgb(${r}, ${g}, ${b})`;
         this.context.strokeStyle = value;
     }
 
+    /** 
+     * Sets the color of the fill style 
+     * @param {number} r 
+     * @param {number} g 
+     * @param {number} b 
+     */
     setFillColor(r, g, b) {
         const value = `rgb(${r}, ${g}, ${b})`;
         this.context.fillStyle = value;
@@ -67,6 +80,13 @@ export class CanvasRendering {
         }   
     }
 
+    /**
+     * Draws a rectangle at (x,y) with size (w,h)
+     * @param {number} x 
+     * @param {number} y 
+     * @param {number} w 
+     * @param {number} h 
+     */
     drawRect(x, y, w, h) {
         this.context.fillRect(x, y, w, h);
     }
@@ -87,6 +107,14 @@ export class CanvasRendering {
         ctx.stroke();
     }
 
+    /**
+     * Draws text at the given coordinates
+     * 
+     * @param {number} x 
+     * @param {number} y 
+     * @param {string} text text to draw
+     * @param {string} [font] optional font description
+     */
     drawText(x, y, text, font) {
         if (font) {
             this.context.font = font;
@@ -150,6 +178,17 @@ export class CanvasRendering {
         return index;
     }
 
+    /**
+     * Draw a wireframe of the given polygon
+     * @param {int[]} indices of the vertices to use that make up the polygon
+     * @param {Vector3[]} vertices list of vertices
+     * @param {Vector3} center of the rotation
+     * @param {Quaternion} rotation the rotation
+     * @param {Vector3} translation of the vertices
+     * @param {Matrix44} projection used to project the vertices into view space
+     * @param {number} width of the viewport
+     * @param {number} height of the viewport
+     */
     drawWireFramePolygonProjection(indices, vertices, center, rotation, translation, projection, width, height) {
                                 
         const polyVertices = indices.map( idx => {
@@ -169,6 +208,12 @@ export class CanvasRendering {
         }
     }
 
+    /**
+     * Draws a wireframe of a polygon 
+     * @param {Vector3[]} vertices representing screen coordinates
+     * @param {number} width of the viewport
+     * @param {number} height of the viewport
+     */
     drawWireFramePolygon(vertices, width, height) {
 
         for (var i = 0; i < vertices.length; i++) {

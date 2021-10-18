@@ -12,6 +12,9 @@ import { updateUI, bindNumberProperty, bindCheckBox } from "./lib/ui-util.js";
  */
 const appRendering = new CanvasRendering("canvas").clear();
 
+/**
+ * Contains all application wide state related variables
+ */
 const state = new Appstate();
 
 /**
@@ -25,6 +28,7 @@ function project(model, rendering) {
 
     var index = 0;
     
+    // clear the existing handle if there was one
     if (state.drawUpdateHandle) {
         clearInterval(state.drawUpdateHandle);
         state.drawUpdateHandle = null;
@@ -53,11 +57,11 @@ function project(model, rendering) {
 }
 
 function drawSelectedModel() {
-    if (state.currentModel) {
+    if (state.selectedRenderObject) {
         appRendering.clear();
-        project(state.currentModel, appRendering);
+        project(state.selectedRenderObject, appRendering);
         appRendering.setColor(180, 230, 250);
-        appRendering.drawText(30, appRendering.canvas.height - 50, state.currentModel.description);
+        appRendering.drawText(30, appRendering.canvas.height - 50, state.selectedRenderObject.description);
     }
 }
 
@@ -72,7 +76,7 @@ function calculateOffset(objectInfo) {
 function fetchObject(objectName) {
     state.setSelectedModel(objectName);
 
-    if (state.currentModel) {        
+    if (state.selectedRenderObject) {        
         updateUI();
         drawSelectedModel();
     } else {
@@ -113,13 +117,13 @@ bindNumberProperty(state, "projection-angle", "projectionAngle", () => drawSelec
 bindNumberProperty(state, "aspect-angle", "projectionAspect", () => drawSelectedModel());
 bindNumberProperty(state, "draw-time", "drawIterationTime", () => drawSelectedModel());
 
-bindNumberProperty(state, "offset-x", "currentModel.translation.x", () => drawSelectedModel());
-bindNumberProperty(state, "offset-y", "currentModel.translation.y", () => drawSelectedModel());
-bindNumberProperty(state, "offset-z", "currentModel.translation.z", () => drawSelectedModel());
+bindNumberProperty(state, "offset-x", "selectedRenderObject.translation.x", () => drawSelectedModel());
+bindNumberProperty(state, "offset-y", "selectedRenderObject.translation.y", () => drawSelectedModel());
+bindNumberProperty(state, "offset-z", "selectedRenderObject.translation.z", () => drawSelectedModel());
 
-bindNumberProperty(state, "rotation-x", "currentModel.euler.x", () => {state.updateRotation();drawSelectedModel()});
-bindNumberProperty(state, "rotation-y", "currentModel.euler.y", () => {state.updateRotation();drawSelectedModel()});
-bindNumberProperty(state, "rotation-z", "currentModel.euler.z", () => {state.updateRotation();drawSelectedModel()});
+bindNumberProperty(state, "rotation-x", "selectedRenderObject.euler.x", () => {state.updateRotation();drawSelectedModel()});
+bindNumberProperty(state, "rotation-y", "selectedRenderObject.euler.y", () => {state.updateRotation();drawSelectedModel()});
+bindNumberProperty(state, "rotation-z", "selectedRenderObject.euler.z", () => {state.updateRotation();drawSelectedModel()});
 
 // load the default object
 fetchObject(modelSelection.value);
