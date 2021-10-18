@@ -67,6 +67,10 @@ export class CanvasRendering {
         }   
     }
 
+    drawRect(x, y, w, h) {
+        this.context.fillRect(x, y, w, h);
+    }
+
     /**
      * Draw a line from (x1,y1) to (x2, y2) using the current stroke color
      * @param {number} x1 

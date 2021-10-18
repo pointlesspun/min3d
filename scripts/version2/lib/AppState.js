@@ -1,3 +1,4 @@
+import { Quaternion } from "./Quaternion.js";
 
 export class Appstate {
     /**
@@ -6,15 +7,17 @@ export class Appstate {
     objectMap = {};
     cullBackfacing = true;
     currentModel = null;
+    
     projectionAngle = 90;
     projectionAspect = 1.0;
-    handle = null;   
+    drawUpdateHandle = null;   
     drawIterationTime = 50;
 
-    setSelectedModel(name, model) {
+    setSelectedModel(name, model, description) {
         if (model) {
             if (this.objectMap[name] !== model) {
                 this.objectMap[name] = model;
+                model.description = description;
             }
         } else {
             model = this.objectMap[name];
@@ -23,5 +26,9 @@ export class Appstate {
         this.currentModel = model;
 
         return this.currentModel;
+    }
+
+    updateRotation() {
+        this.currentModel.rotation = Quaternion.fromEuler(this.currentModel.euler).normalized();
     }
 }
