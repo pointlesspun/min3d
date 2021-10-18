@@ -18,32 +18,26 @@ v2.0
 - [done] ignore backfacing faces
 - [done] allow model rotation
 	- [done] add quaternion
-- fetch loading progress
+- [done] fetch loading progress
 - add switch for draw incrementally / immediate
 - [done] add version selection from index.html
 - document
 
 v3.0
-- clip points against view frustrum
-    - extract view frustrum from view matrix
-- add model transform
-	- model translation 
-	- model scaling
-	- model rotation
-
-v4.0
 	- sort faces by distance from camera
 	- draw faces (polygons)
 	- add basic directional light model
 
-v5.0
+v4.0
+- clip points against view frustrum
+    - extract view frustrum from view matrix
 	- add z buffer
 	- add rasterization
 
-v6.0 
+v5.0 
 	- self shadowing
 	- point lights ?
 
-v7.0 
+v6.0 
 	- textures ?
 	

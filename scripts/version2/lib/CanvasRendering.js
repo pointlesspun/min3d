@@ -122,58 +122,67 @@ export class CanvasRendering {
         const width = this.canvas.width;
         const height = this.canvas.height;
         const renderData = renderObj.renderData;
+        const center = renderData.bounds.min.addVector(renderData.span().div(2));
 
         var index = startIndex || 0;
         var startTime = Date.now();
 
         while (index < renderData.faces.length) {
-            const center = renderData.bounds.min.addVector(renderData.span().div(2));
-            const face =  renderData.faces[index];
             
-            if (!cullBackfacing || !this.isFacingBackwards(renderObj, face, center))
-            {
-                const vertexIndices = face.indices;
-                                
-                const polyVertices = vertexIndices.map( idx => {
-                    // rotate the vertex relative to the local center (ie center of the render object)
-                    const vertex = renderData.vertices[idx].subVector(center);
-                    const rotatedVertex = MathX.rotate(vertex, renderObj.rotation).addVector(center);
-                    
-                    return MathX.multiplyVxM(rotatedVertex.addVector(renderObj.translation), projection);
-                });
-        
-                if (!polyVertices.some((projected) => 
-                    projected.x < -1 || projected.x > 1 || projected.y < -1 || projected.y > 1))
-                { 
-                
-                    for (var i = 0; i < polyVertices.length; i++)
-                    {
-                        var p1 = polyVertices[i];
-                        var p2 = polyVertices[(i+1) % polyVertices.length];
-        
-                        let x1 = Math.min(width - 1, ((p1.x + 1) * 0.5 * width)); 
-                        let y1 = Math.min(height - 1, ((1 - (p1.y + 1) * 0.5) * height)); 
-        
-                        let x2 = Math.min(width - 1, ((p2.x + 1) * 0.5 * width)); 
-                        let y2 = Math.min(height - 1, ((1 - (p2.y + 1) * 0.5) * height)); 
-        
-                        this.drawLine(x1, y1, x2, y2);
-
-                        // draw the vertex on the start of the line (don't need to draw the end vertex as
-                        // that will be the 'start vertex' in the next iteration)
-                        this.context.fillRect(x1, y1, 1, 1);
-                    }
-                }
+            const face = renderData.faces[index];
+            
+            if (!cullBackfacing || !this.isFacingBackwards(renderObj, face, center)) {
+                this.drawWireFramePolygonProjection(face.indices, 
+                    renderData.vertices, center, renderObj.rotation, renderObj.translation, projection, width, height);
             }
 
             index++;
 
-            if (maxTime && (Date.now() - startTime) > maxTime) {
+            if (maxTime && maxTime > 0 && (Date.now() - startTime) > maxTime) {
                 break;
             }
         }   
 
         return index;
+    }
+
+    drawWireFramePolygonProjection(indices, vertices, center, rotation, translation, projection, width, height) {
+                                
+        const polyVertices = indices.map( idx => {
+            // rotate the vertex relative to the local center (ie center of the render object)
+            const vertex = vertices[idx].subVector(center);
+            const rotatedVertex = MathX.rotate(vertex, rotation).addVector(center);
+            
+            return MathX.multiplyVxM(rotatedVertex.addVector(translation), projection);
+        });
+
+        // don't draw the polygon if any of its vertices are off screen. In the future, we will
+        // do appropriate clipping but for now just reject the polygon
+        if (!polyVertices.some((projected) => 
+            projected.x < -1 || projected.x > 1 || projected.y < -1 || projected.y > 1)) { 
+                
+            this.drawWireFramePolygon(polyVertices, width, height);
+        }
+    }
+
+    drawWireFramePolygon(vertices, width, height) {
+
+        for (var i = 0; i < vertices.length; i++) {
+            var p1 = vertices[i];
+            var p2 = vertices[(i+1) % vertices.length];
+
+            let x1 = Math.min(width - 1, ((p1.x + 1) * 0.5 * width)); 
+            let y1 = Math.min(height - 1, ((1 - (p1.y + 1) * 0.5) * height)); 
+
+            let x2 = Math.min(width - 1, ((p2.x + 1) * 0.5 * width)); 
+            let y2 = Math.min(height - 1, ((1 - (p2.y + 1) * 0.5) * height)); 
+
+            this.drawLine(x1, y1, x2, y2);
+
+            // draw the vertex on the start of the line (don't need to draw the end vertex as
+            // that will be the 'start vertex' in the next iteration)
+            this.context.fillRect(x1, y1, 1, 1);
+        }
     }
 
     /**

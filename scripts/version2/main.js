@@ -5,11 +5,7 @@ import { Matrix44 } from "./lib/Matrix44.js";
 import { WaveFrontObject } from "./lib/WaveFrontObject.js";
 import { RenderObject } from "./lib/RenderObject.js";
 import { startFetch } from "./lib/Fetch.js";
-
-/**
- * A place to store loaded WaveFront objects
- */
-const objectMap = {};
+import { Appstate } from "./lib/AppState.js";
 
 /**
  * Pointer to the canvas element wrapper
@@ -34,11 +30,9 @@ const rotationXInput = document.getElementById("rotation-x");
 const rotationYInput = document.getElementById("rotation-y");
 const rotationZInput = document.getElementById("rotation-z");
 
-var cullBackfacing = true;
-var currentModel = new RenderObject();
-var projectionAngle = 90;
-var projectionAspect = 1.0;
-var handle = undefined;
+const drawTimeInput = document.getElementById("draw-time");
+
+const state = new Appstate();
 
 /**
  * Project the WaveFront object to the given rendering
@@ -47,28 +41,32 @@ var handle = undefined;
  * @param {CanvasRendering} rendering
  */
 function project(model, rendering) {
-    const projection = new Matrix44().projectionFoV(projectionAngle, projectionAspect, 0.2, 1000, false);
+    const projection = new Matrix44().projectionFoV(state.projectionAngle, state.projectionAspect, 0.2, 1000, false);
 
     var index = 0;
     
-    if (handle !== undefined) {
-        clearInterval(handle);
-        handle = undefined;
+    if (state.handle !== undefined) {
+        clearInterval(state.handle);
+        state.handle = undefined;
     }
     
-    var intervalFunction = function() {
-        // draw the model's lines
-        rendering.setStrokeColor(30, 75, 205);
-        rendering.setFillColor(200, 200, 245);
+    rendering.setStrokeColor(30, 75, 205);
+    rendering.setFillColor(200, 200, 245);
 
-        index = rendering.drawWireFrame(model, projection, index, 90, cullBackfacing);
+    if (state.drawIterationTime) {
+        var intervalFunction = function() {
+            // draw the model's lines       
+            index = rendering.drawWireFrame(model, projection, index, state.drawIterationTime, state.cullBackfacing);
 
-        if (index >= model.renderData.faces.length) {
-            clearInterval(handle);
-        }
-    };
+            if (index >= model.renderData.faces.length) {
+                clearInterval(state.handle);
+            }
+        };
 
-    handle = setInterval(intervalFunction, 100);
+        state.handle = setInterval(intervalFunction, state.drawIterationTime + 10);
+    } else {
+        rendering.drawWireFrame(model, projection, index, state.drawIterationTime, state.cullBackfacing);
+    }
 }
 
 function updateOffsetView(newOffset) {
@@ -90,22 +88,15 @@ function updateRotationView(euler) {
 
 /**
  * Load a wavefront object (if it hasn't loaded yet).
- * 
- * Beetle: dikiachmadp@https://free3d.com
- * Cube: press save after blender opens...
- * Skull: printable_models@https://free3d.com
- * Suzanne: blender3d
- * Teapot: utah teapot... (Martin Newell)
- * Male: nixor@https://free3d.com
  */
 function fetchObject(objectName) {
-    currentModel = objectMap[objectName];
+    state.setSelectedModel(objectName);
 
-    if (currentModel) {        
-        updateOffsetView(currentModel.translation);
-        updateRotationView(currentModel.euler);                  
+    if (state.currentModel) {        
+        updateOffsetView(state.currentModel.translation);
+        updateRotationView(state.currentModel.euler);                  
 
-        project(currentModel, appRendering);
+        project(state.currentModel, appRendering);
     } else {
             const progressUpdate = function(percentage) {
                 appRendering.clear();
@@ -119,17 +110,15 @@ function fetchObject(objectName) {
 
             startFetch(objectName, progressUpdate, (text) => {
                 appRendering.clear();
-                
+
                 const waveFrontObject = new WaveFrontObject().parse(text);
 
-                currentModel = new RenderObject(waveFrontObject,  calculateOffset(waveFrontObject));
+                state.setSelectedModel(objectName, new RenderObject(waveFrontObject,  calculateOffset(waveFrontObject)));
 
-                objectMap[objectName] = currentModel;
-             
-                updateOffsetView(currentModel.translation);      
-                updateRotationView(currentModel.euler);          
+                updateOffsetView(state.currentModel.translation);      
+                updateRotationView(state.currentModel.euler);          
 
-                project(currentModel, appRendering);                
+                project(state.currentModel, appRendering);                
             });
     }
 }
@@ -143,7 +132,7 @@ function updateNumberField(inputField, setValue, getValue) {
                 setValue(newValue);
 
                 appRendering.clear();
-                project(currentModel, appRendering);
+                project(state.currentModel, appRendering);
             }
         } else {
             inputField.value = getValue();
@@ -162,43 +151,56 @@ modelSelection.addEventListener("change", (evt) =>{
 }); 
 
 cullBackfacingCheckbox.addEventListener("click", () => {
-    cullBackfacing = cullBackfacingCheckbox.checked;
+    state.cullBackfacing = cullBackfacingCheckbox.checked;
     
-    if (currentModel) {
+    if (state.currentModel) {
         appRendering.clear();
-        project(currentModel, appRendering);
+        project(state.currentModel, appRendering);
     }
 });
 
-projectionAngleInput.addEventListener("change", () => updateNumberField(projectionAngleInput, (v) => { projectionAngle = v }, () => projectionAngle));    
-projectionAspectInput.addEventListener("change", () => updateNumberField(projectionAspectInput, (v) => { projectionAspect = v }, () => projectionAspect));    
+drawTimeInput.addEventListener("change", 
+    () => updateNumberField(drawTimeInput, (v) => { state.drawIterationTime = v }, () => state.drawIterationTime));    
 
-offsetXInput.addEventListener("change", () =>  updateNumberField(offsetXInput, (v) => { currentModel.translation.x = v }, () => currentModel.translation.x));
-offsetYInput.addEventListener("change", () => updateNumberField(offsetYInput, (v) => { currentModel.translation.y = v }, () => currentModel.translation.y));
-offsetZInput.addEventListener("change", () => updateNumberField(offsetZInput, (v) => { currentModel.translation.z = v }, () => currentModel.translation.z));    
+projectionAngleInput.addEventListener("change", 
+    () => updateNumberField(projectionAngleInput, (v) => { state.projectionAngle = v }, () => state.projectionAngle));    
+
+projectionAspectInput.addEventListener("change", 
+    () => updateNumberField(projectionAspectInput, (v) => { state.projectionAspect = v }, () => state.projectionAspect));    
+
+offsetXInput.addEventListener("change", 
+    () =>  updateNumberField(offsetXInput, (v) => { state.currentModel.translation.x = v }, () => state.currentModel.translation.x));
+
+offsetYInput.addEventListener("change", 
+    () => updateNumberField(offsetYInput, (v) => { state.currentModel.translation.y = v }, () => state.currentModel.translation.y));
+
+offsetZInput.addEventListener("change",
+     () => updateNumberField(offsetZInput, (v) => { state.currentModel.translation.z = v }, () => state.currentModel.translation.z));    
 
 
 const updateX = (v) => {
-    currentModel.euler.x = v; 
-    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
+    state.currentModel.euler.x = v; 
+    state.currentModel.rotation = Quaternion.fromEuler(state.currentModel.euler).normalized();
 };
 
 const updateY = (v) => {
-    currentModel.euler.y = v; 
-    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
+    state.currentModel.euler.y = v; 
+    state.currentModel.rotation = Quaternion.fromEuler(state.currentModel.euler).normalized();
 }
 
 const updateZ = (v) => {
-    currentModel.euler.z = v; 
-    currentModel.rotation = Quaternion.fromEuler(currentModel.euler).normalized();
+    state.currentModel.euler.z = v; 
+    state.currentModel.rotation = Quaternion.fromEuler(state.currentModel.euler).normalized();
 }
 
-rotationXInput.addEventListener("change", () =>  updateNumberField(rotationXInput, (v) => updateX(v), () => currentModel.euler.x));
-rotationYInput.addEventListener("change", () => updateNumberField(rotationYInput, (v) => updateY(v), () => currentModel.euler.y));
-rotationZInput.addEventListener("change", () => updateNumberField(rotationZInput, (v) => updateZ(v), () => currentModel.euler.z));    
+rotationXInput.addEventListener("change", () =>  updateNumberField(rotationXInput, (v) => updateX(v), () => state.currentModel.euler.x));
+rotationYInput.addEventListener("change", () => updateNumberField(rotationYInput, (v) => updateY(v), () => state.currentModel.euler.y));
+rotationZInput.addEventListener("change", () => updateNumberField(rotationZInput, (v) => updateZ(v), () => state.currentModel.euler.z));    
 
-projectionAngleInput.value = projectionAngle;
-projectionAspectInput.value = projectionAspect;
+projectionAngleInput.value = state.projectionAngle;
+projectionAspectInput.value = state.projectionAspect;
+
+drawTimeInput.value = state.drawIterationTime;
 
 rotationXInput.value = 0;
 rotationYInput.value = 0;

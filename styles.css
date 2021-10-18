@@ -32,8 +32,20 @@ canvas {
 
 .options-container {
     flex-grow: 2;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.options-labels-container {
+    flex-grow: 1;
     flex-direction: column;
 }
+
+.options-values-container {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
 
 .centered {
     display: flex;
@@ -48,7 +60,12 @@ canvas {
 .option {
     margin-left: 8px;
     padding: 6px;
-    border-bottom: 1px solid #BBBBBF;
+    border-bottom: 1px solid #DDDDEE;  
+}
+
+.option-label {
+    color: #606070;
+    font-size: small;
 }
 
 .vector3 {
@@ -57,7 +74,8 @@ canvas {
     align-items: center;
 }
 
-.vector3-element {
+.number-field {
     width: 60px;
     margin: 2px;
+    border: 1px solid #CCCCDD
 }

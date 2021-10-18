@@ -1,5 +1,7 @@
 
-
+/**
+ * Based off https://javascript.info/fetch-progress
+ */
 export class Fetch {
     constructor(uri) {
         this.uri = uri;
