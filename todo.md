@@ -21,7 +21,7 @@ v2.0
 - [done] fetch loading progress
 - [done] add switch for draw incrementally / immediate
 - [done] add version selection from index.html
-- document / fix links and so on
+- [done] document / fix links and so on
 
 v3.0
 	- sort faces by distance from camera
