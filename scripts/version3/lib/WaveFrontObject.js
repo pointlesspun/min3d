@@ -21,6 +21,7 @@ export class WaveFrontObject {
 
     /**
      * Array of indices, either of length 3 (triangles) or 4 (quads)
+     * @type {Face[]}
      */
     faces = [];
 
@@ -33,6 +34,10 @@ export class WaveFrontObject {
         max : new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE)
     };
 
+    center() {
+        return this.bounds.min.addVector(this.span().div(2));
+    }
+
     span() {
         return this.bounds.max.subVector(this.bounds.min);
     }
@@ -43,7 +48,7 @@ export class WaveFrontObject {
      */
     parse(text) {
         var lineArray = text.split('\n');
-        
+
         for (let line of lineArray)
         {
             if (line.startsWith("v ")) {

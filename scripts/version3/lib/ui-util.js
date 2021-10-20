@@ -1,5 +1,9 @@
 // various utilities to help out with the UI 
 
+export const uiUtilConfig = {
+    defaultPostUpdateFunction : null
+}
+
 /** Ui elements which have been associated with certain properties and need to be updated from time to time */
 const uiRefreshFunctions = [];
 
@@ -14,6 +18,7 @@ const uiRefreshFunctions = [];
 // https://stackoverflow.com/users/1955088/adriano-spadoni
 const setPath = (object, path, value) => 
     path.split('.').reduce((o,p,i) => o[p] = path.split('.').length === ++i ? value : o[p] || {}, object)
+
 
 /**
  * Gets the value of the a property of the given object
@@ -43,6 +48,10 @@ export function bindCheckBox(obj, checkboxName, propertyName, onSet) {
     const element = document.getElementById(checkboxName);
     element.addEventListener("click", () => {
         setPath(obj, propertyName, element.checked);
+        if (uiUtilConfig.defaultPostUpdateFunction) {
+            uiUtilConfig.defaultPostUpdateFunction();
+        }
+        
         if (onSet) {
             onSet();
         }
@@ -65,6 +74,10 @@ export function bindNumberProperty(obj, numberInput, propertyName, onSet) {
         () => updateNumberField(element, 
                 (v) => { 
                     setPath(obj, propertyName, v);
+                    if (uiUtilConfig.defaultPostUpdateFunction) {
+                        uiUtilConfig.defaultPostUpdateFunction();
+                    }
+                    
                     if (onSet) {
                         onSet();
                     }

@@ -1,12 +1,11 @@
+import { Color } from "./Color.js";
 import { Quaternion } from "./Quaternion.js";
 import { RenderObject } from "./RenderObject.js";
+import { Vector3 } from "./Vector3.js";
 
 export class Appstate {
     /** A container to store the render objects */
     renderObjects = {};
-
-    /** Flag indicating whether or not backfacing polygons should be rendered or not */
-    cullBackfacing = true;
 
     /** Currently visible render object  */
     selectedRenderObject = null;
@@ -22,6 +21,12 @@ export class Appstate {
 
     /** Max time alotted to a single draw iteration, if zero or negative each iteration can take as much time as it wants. */
     drawIterationTime = 50;
+
+    ambientLight = new Color(100, 100, 100);
+
+    lightDirection  = new Vector3(1, 0, 0);
+
+    lightColor = new Color(100, 100, 100);
 
     /**
      * Sets the selected model. If the model wasn't selected before, stores it in memory.

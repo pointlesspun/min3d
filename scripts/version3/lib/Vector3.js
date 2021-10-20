@@ -16,6 +16,14 @@ export class Vector3 {
         this.z = z;
     }
 
+    copy(other) {
+        if (other) {
+            this.x = other.x;
+            this.y = other.y;
+            this.z = other.z;
+        }
+    }
+
     /**
      * 
      * @returns {boolean} true if any of the components have a non zero length

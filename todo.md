@@ -24,9 +24,11 @@ v2.0
 - [done] document / fix links and so on
 
 v3.0
-	- sort faces by distance from camera
-	- draw faces (polygons)
-	- add basic directional light model
+- [done] sort faces by distance from camera
+- [done] draw faces (polygons)
+- [done] add basic directional light model
+- weird bug with faces being culled at some angles coming from one direction but not from another...
+- document
 
 v4.0
 - clip points against view frustrum

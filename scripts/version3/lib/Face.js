@@ -14,5 +14,7 @@ export class Face {
         this.indices = indices;
         this.normal = normal;
         this.centroid = centroid;
+        this.worldNormal = null;
+        this.distanceToCamera = 0;
     }
 }

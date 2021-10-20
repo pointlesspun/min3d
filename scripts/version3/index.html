@@ -19,11 +19,13 @@
                 <div class="options-container">
                     <div class="options-labels-container">
                         <span class="option-label">Select model:</span>
-                        <span class="option-label">Cull backfaces:</span>
                         <span class="option-label">Draw time:</span>
                         <span class="option-label">Fov/Aspect:</span>
                         <span class="option-label">Camera pos:</span>
                         <span class="option-label">Rotation:</span>
+                        <span class="option-label">Light direction:</span>
+                        <span class="option-label">Light color:</span>
+                        <span class="option-label">Ambient color:</span>
                         <span class="option-label"><a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> </span>
                     </div>
 
@@ -50,28 +52,47 @@
                             </div>
 
                             <div class="option">
-                                <input type="checkbox" id="cullBackFaces" name="cullBackFaces" checked>
+                                <input type="number" id="draw-time" class="number-field" min="0">
                             </div>
 
                             <div class="option">
-                                <input type="number" id="draw-time" class="number-field">
+                                <input type="number" id="projection-angle" class="number-field" min="1" max="179">
+                                <input type="number" id="aspect-angle" class="number-field" min="0.25" max="10" step="0.25">    
                             </div>
 
-                            <div class="option">
-                                <input type="number" id="projection-angle" class="number-field">
-                                <input type="number" id="aspect-angle" class="number-field">    
-                            </div>
-
+                            <!-- Camera position -->
                             <div class="option">
                                 <input type="number" id="offset-x" class="number-field" step="0.25"> 
                                 <input type="number" id="offset-y" class="number-field" step="0.25"> 
                                 <input type="number" id="offset-z" class="number-field" step="0.25"> 
                             </div>
 
+                            <!-- Rotation position -->
                             <div class="option">
                                 <input type="number" id="rotation-x" class="number-field" step="5" > 
                                 <input type="number" id="rotation-y" class="number-field" step="5"> 
                                 <input type="number" id="rotation-z" class="number-field" step="5"> 
+                            </div>
+
+                            <!-- Light position -->
+                            <div class="option">
+                                <input type="number" id="light-x" class="number-field" step="0.2" > 
+                                <input type="number" id="light-y" class="number-field" step="0.2"> 
+                                <input type="number" id="light-z" class="number-field" step="0.2"> 
+                            </div>
+
+                            <!-- Light color -->
+                            <div class="option">
+                                <input type="number" id="light-r" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="light-g" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="light-b" class="number-field" step="10" min="0" max="255"> 
+                            </div>
+
+                            <!-- Ambient color -->
+                            <div class="option">
+                                <input type="number" id="ambient-r" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="ambient-g" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="ambient-b" class="number-field" step="10" min="0" max="255"> 
                             </div>
 
                         </select>
