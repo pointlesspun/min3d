@@ -39,7 +39,7 @@ export class ModelRenderer {
     }
 
     sortVisibleFaces() {
-        const center = this.renderObject.renderData.center();
+        const center = this.renderObject.renderData.objectCenter;
 
         this.visibleFaces.forEach(f => {
             var c2 = this.toWorld(f.centroid, center, this.renderObject.translation, this.renderObject.rotation);
@@ -100,7 +100,7 @@ export class ModelRenderer {
      */
     drawVisibleFace(idx, lightColor, lightDirection, ambientLight, drawFunction) {
         const face = this.visibleFaces[idx];
-        const center = this.renderObject.renderData.center();
+        const center = this.renderObject.renderData.objectCenter;
         const polyVertices = [];
 
         for (let i = 0; i < face.indices.length; i++) {
@@ -131,13 +131,14 @@ export class ModelRenderer {
      */
     getWorldNormalIfFacing(face, renderObject) {
         const rotation = renderObject.rotation;
-        const center = renderObject.renderData.center();
+        const center = renderObject.renderData.objectCenter;
         const translation = renderObject.translation;
 
         const faceNormal = MathX.rotate(face.normal, rotation);
         const lookDirection = this.toWorld(face.centroid, center, translation, rotation).normalized();
+        const dot = faceNormal.dot(lookDirection); 
 
-        return (faceNormal.dot(lookDirection) < 0) ? faceNormal : null;
+        return (dot < 0) ? faceNormal : null;
     }
 
     toWorld(vertex, center, translation, rotation) {

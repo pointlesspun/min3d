@@ -48,12 +48,13 @@ export function bindCheckBox(obj, checkboxName, propertyName, onSet) {
     const element = document.getElementById(checkboxName);
     element.addEventListener("click", () => {
         setPath(obj, propertyName, element.checked);
-        if (uiUtilConfig.defaultPostUpdateFunction) {
-            uiUtilConfig.defaultPostUpdateFunction();
-        }
-        
+       
         if (onSet) {
             onSet();
+        }
+
+        if (uiUtilConfig.defaultPostUpdateFunction) {
+            uiUtilConfig.defaultPostUpdateFunction();
         }
     });
     uiRefreshFunctions.push( () => {
@@ -74,13 +75,15 @@ export function bindNumberProperty(obj, numberInput, propertyName, onSet) {
         () => updateNumberField(element, 
                 (v) => { 
                     setPath(obj, propertyName, v);
-                    if (uiUtilConfig.defaultPostUpdateFunction) {
-                        uiUtilConfig.defaultPostUpdateFunction();
-                    }
-                    
+                                       
                     if (onSet) {
                         onSet();
                     }
+
+                    if (uiUtilConfig.defaultPostUpdateFunction) {
+                        uiUtilConfig.defaultPostUpdateFunction();
+                    }
+ 
                  }, 
                  () => resolvePath(obj, propertyName)));    
     uiRefreshFunctions.push( () => {

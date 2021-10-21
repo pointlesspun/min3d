@@ -34,12 +34,15 @@ export class WaveFrontObject {
         max : new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE)
     };
 
-    center() {
-        return this.bounds.min.addVector(this.span().div(2));
+
+    objectCenter = new Vector3();
+
+    boundsSpan() {
+        return this.bounds.max.subVector(this.bounds.min);
     }
 
-    span() {
-        return this.bounds.max.subVector(this.bounds.min);
+    boundsCenter() {
+        return this.bounds.min.addVector(this.boundsSpan().div(2));
     }
 
     /**
@@ -52,48 +55,64 @@ export class WaveFrontObject {
         for (let line of lineArray)
         {
             if (line.startsWith("v ")) {
-                let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'v' && s !== '\r');
-                let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
-
-                this.bounds.min = this.bounds.min.min(vector);
-                this.bounds.max = this.bounds.max.max(vector);
-
-                this.vertices.push(vector);
+                this.parseVector(line);
             }
             else if (line.startsWith("vn ")) {
-                let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'vn' && s !== '\r');
-                let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
-
-                this.normals.push(vector);
+                // ignore for now, we're not using this
+                // this.parseVertexNormals(line);
             }
             else if (line.startsWith("f ")) {
-                const faceIndices = line.split(' ').filter( s => s && s !== '\r' && s !== 'f');
-                if (faceIndices.length <= 4) {
-                    const faceElements = faceIndices.map( str => this.parseFace(str) );
-
-                    const v1 = this.vertices[faceElements[0].vertex];
-                    const v2 = this.vertices[faceElements[1].vertex];
-                    const v3 = this.vertices[faceElements[2].vertex];
-                    const v4 = faceElements.length === 4 ? this.vertices[faceElements[3].vertex] : null;
-
-                    const v1_v2 = v2.subVector(v1).normalized();
-                    const v2_v3 = v3.subVector(v2).normalized();
-
-                    const normal = v1_v2.cross(v2_v3).normalized();
-                                       
-                    const centroid = faceIndices.length === 3 
-                                ? MathX.triangleCentroid(v1, v2, v3)
-                                : MathX.quadCentroid(v1, v2, v3, v4);
-
-                    this.faces.push(new Face(faceElements.map( data => data.vertex), normal, centroid));
-                }
+                this.parseFace(line);
             }
         }
+
+        this.objectCenter = this.boundsCenter();
 
         return this;
     }
 
-    parseFace(input) {
+    parseVector(line) {
+        let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'v' && s !== '\r');
+        let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
+
+        this.bounds.min = this.bounds.min.min(vector);
+        this.bounds.max = this.bounds.max.max(vector);
+
+        this.vertices.push(vector);
+    }
+
+    parseVertexNormals(line) {
+        let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'vn' && s !== '\r');
+        let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
+
+        this.normals.push(vector);
+    }
+
+    parseFace(line) {
+        const faceIndices = line.split(' ').filter( s => s && s !== '\r' && s !== 'f');
+        if (faceIndices.length <= 4) {
+            const faceElements = faceIndices.map( str => this.parseFaceProperties(str) );
+
+            const v1 = this.vertices[faceElements[0].vertex];
+            const v2 = this.vertices[faceElements[1].vertex];
+            const v3 = this.vertices[faceElements[2].vertex];
+            const v4 = faceElements.length === 4 ? this.vertices[faceElements[3].vertex] : null;
+
+            const v1_v2 = v2.subVector(v1).normalized();
+            const v2_v3 = v3.subVector(v2).normalized();
+
+            const normal = v1_v2.cross(v2_v3);
+                               
+            const centroid = faceIndices.length === 3 
+                        ? MathX.triangleCentroid(v1, v2, v3)
+                        : MathX.quadCentroid(v1, v2, v3, v4);
+
+            this.faces.push(new Face(faceElements.map( data => data.vertex), normal, centroid));
+        }
+    }
+
+
+    parseFaceProperties(input) {
         var values = input.split('/');
     
         return {

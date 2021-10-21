@@ -33,7 +33,7 @@ function drawModel() {
     if (model) {
         const projection = new Matrix44().projectionFoV(state.projectionAngle, state.projectionAspect, 0.2, 1000, false);
     
-        appRendering.clear();
+        appRendering.clear(state.backgroundColor.r, state.backgroundColor.g, state.backgroundColor.b);
 
         // clear the existing handle if there was one
         if (state.drawUpdateHandle) {
@@ -70,7 +70,7 @@ function drawModel() {
 
 
 function calculateOffset(objectInfo) {
-    const span = objectInfo.span();
+    const span = objectInfo.boundsSpan();
     return new Vector3(0, -(objectInfo.bounds.min.y + span.y / 2.0), -(span.z + span.y/2.5));
 }
 
@@ -128,6 +128,10 @@ bindNumberProperty(state, "offset-z", "selectedRenderObject.translation.z");
 bindNumberProperty(state, "rotation-x", "selectedRenderObject.euler.x", () => state.updateRotation());
 bindNumberProperty(state, "rotation-y", "selectedRenderObject.euler.y", () => state.updateRotation());
 bindNumberProperty(state, "rotation-z", "selectedRenderObject.euler.z", () => state.updateRotation());
+
+bindNumberProperty(state, "center-x", "selectedRenderObject.renderData.objectCenter.x");
+bindNumberProperty(state, "center-y", "selectedRenderObject.renderData.objectCenter.y");
+bindNumberProperty(state, "center-z", "selectedRenderObject.renderData.objectCenter.z");
 
 bindNumberProperty(state, "light-x", "lightDirection.x");
 bindNumberProperty(state, "light-y", "lightDirection.y");

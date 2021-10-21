@@ -3,6 +3,8 @@ import { Quaternion } from "./Quaternion.js";
 import { RenderObject } from "./RenderObject.js";
 import { Vector3 } from "./Vector3.js";
 
+
+
 export class Appstate {
     /** A container to store the render objects */
     renderObjects = {};
@@ -27,6 +29,8 @@ export class Appstate {
     lightDirection  = new Vector3(1, 0, 0);
 
     lightColor = new Color(100, 100, 100);
+
+    backgroundColor = new Color(20, 20, 65);
 
     /**
      * Sets the selected model. If the model wasn't selected before, stores it in memory.
