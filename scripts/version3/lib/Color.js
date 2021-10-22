@@ -1,3 +1,7 @@
+/**
+ * Structure capturing color properties (r,g,b,a)
+ */
+
 export class Color {
 
     /**
@@ -14,6 +18,11 @@ export class Color {
         this.a = a || 255;
     }
 
+    /**
+     * Copies the values of the other color
+     * @param {Color} other 
+     * @returns this
+     */
     copy(other) {
         if (other) {
             this.r = other.r;

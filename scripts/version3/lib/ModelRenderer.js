@@ -63,11 +63,12 @@ export class ModelRenderer {
 
         const maxFaces = this.visibleFaces.length;
         var startTime = Date.now();
-
-        while (this.faceIdx < maxFaces && (Date.now() - startTime) < maxTime) {
-            this.faceIdx = this.drawVisibleFaces(this.faceIdx, this.lightColor, this.lightDirection, this.ambientLight, drawFunction, 100);
+        var timeSpendDrawing = 0;
+        while (this.faceIdx < maxFaces && timeSpendDrawing < maxTime) {
+            this.faceIdx = this.drawVisibleFaces(this.faceIdx, this.lightColor, this.lightDirection, this.ambientLight, drawFunction, 600);
+            timeSpendDrawing = Date.now() - startTime;
         }
-
+        
         return this.faceIdx >= maxFaces;
     }
 

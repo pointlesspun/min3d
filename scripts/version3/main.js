@@ -5,15 +5,19 @@ import { WaveFrontObject } from "./lib/WaveFrontObject.js";
 import { RenderObject } from "./lib/RenderObject.js";
 import { startFetch } from "./lib/Fetch.js";
 import { Appstate } from "./lib/AppState.js";
-import { updateUI, bindNumberProperty, bindCheckBox, uiUtilConfig } from "./lib/ui-util.js";
+import * as uiUtil from "./lib/ui-util.js";
 import { ModelRenderer } from "./lib/ModelRenderer.js";
-import { Color } from "./lib/Color.js";
+import { Quaternion } from "./lib/Quaternion.js";
 
 /**
  * Pointer to the canvas element wrapper
+ * @type {CanvasRendering}
  */
 const appRendering = new CanvasRendering("canvas").clear();
 
+/**
+ * Code that deals with rendering the models
+ */
 const modelRenderer = new ModelRenderer();
 
 /**
@@ -30,9 +34,13 @@ const state = new Appstate();
 function drawModel() {
     const model = state.selectedRenderObject;
 
+    // anything selected ?
     if (model) {
+        // create the world to screen projection
         const projection = new Matrix44().projectionFoV(state.projectionAngle, state.projectionAspect, 0.2, 1000, false);
-    
+        const screenWidth = appRendering.canvas.width;
+        const screenHeight = appRendering.canvas.height;
+
         appRendering.clear(state.backgroundColor.r, state.backgroundColor.g, state.backgroundColor.b);
 
         // clear the existing handle if there was one
@@ -41,37 +49,51 @@ function drawModel() {
             state.drawUpdateHandle = null;
         }
 
+        // define a function that puts the data actually on screen
         const drawFunction = (r,g,b,vertices) => {
-            appRendering.setColor(r,g,b);
-            appRendering.drawSolidPolygon(vertices, appRendering.canvas.width, appRendering.canvas.height);
+            if (state.drawFaces) {
+                appRendering.setColor(r,g,b);
+                appRendering.drawSolidPolygon(vertices, screenWidth, screenHeight);
+            }
+
+            if (state.drawEdges) {
+                appRendering.setColor(state.edgeColor.r, state.edgeColor.g, state.edgeColor.b);
+                appRendering.drawWireFramePolygon(vertices, screenWidth, screenHeight );
+            }
         };
         
-        modelRenderer.initialize(model, projection, state.lightColor, state.lightDirection, state.ambientLight)
+        // prepare the model renderer
+        modelRenderer.initialize(model, projection, state.lightColor, state.lightDirection, state.modelColor)
             .filterVisibleFaces()
             .sortVisibleFaces();
 
+        // draw in iterations ?
         if (state.drawIterationTime) {
+            // setup an interval 
             var intervalFunction = function() {
                 if (modelRenderer.drawIteratively(drawFunction, state.drawIterationTime)) {
-                    clearInterval(state.drawUpdateHandle);
+                    clearTimeout(state.drawUpdateHandle);
                     state.drawUpdateHandle = null;
+                    // draw the description
+                    appRendering.setColor(180, 230, 250);
+                    appRendering.drawText(30, screenHeight - 50, model.description);
+                } else {
+                    state.drawUpdateHandle = setTimeout(intervalFunction, state.drawIterationTime);
                 }
             };
 
-            state.drawUpdateHandle = setInterval(intervalFunction, state.drawIterationTime + 10);
+            if (!modelRenderer.drawIteratively(drawFunction, state.drawIterationTime)) {
+                state.drawUpdateHandle = setTimeout(intervalFunction, state.drawIterationTime);
+            }
+            
         } else {
+            // draw the model in one go
             modelRenderer.draw(drawFunction);
-        }
-
-        appRendering.setColor(180, 230, 250);
-        appRendering.drawText(30, appRendering.canvas.height - 50, model.description);
+             // draw the description
+            appRendering.setColor(180, 230, 250);
+            appRendering.drawText(30, screenHeight - 50, model.description);
+        }      
     }
-}
-
-
-function calculateOffset(objectInfo) {
-    const span = objectInfo.boundsSpan();
-    return new Vector3(0, -(objectInfo.bounds.min.y + span.y / 2.0), -(span.z + span.y/2.5));
 }
 
 /**
@@ -81,7 +103,7 @@ function fetchObject(objectName) {
     state.setSelectedModel(objectName);
 
     if (state.selectedRenderObject) {        
-        updateUI();
+        uiUtil.updateUI();
         drawModel();
     } else {
             // keep the user up to date of the loading process
@@ -102,48 +124,41 @@ function fetchObject(objectName) {
                 appRendering.clear();
 
                 const waveFrontObject = new WaveFrontObject().parse(text);
+                
+                // position the camera in a best guess fashion
+                const span = waveFrontObject.boundsSpan();
+                const offset = new Vector3(0, -(waveFrontObject.bounds.min.y + span.y / 2.0), -(span.z + span.y/2.5));
 
-                state.setSelectedModel(objectName, new RenderObject(waveFrontObject,  calculateOffset(waveFrontObject)), modelFileDescription[1].trim());
+                state.setSelectedModel(objectName, new RenderObject(waveFrontObject, offset), modelFileDescription[1].trim());
 
-                updateUI();               
+                uiUtil.updateUI();               
                 drawModel();
             });
     }
 }
 
 // Hook up the combo list event listener
-uiUtilConfig.defaultPostUpdateFunction = () => drawModel();
+uiUtil.beginPropertyBinding(state, () => drawModel());
+    uiUtil.bindNumberProperty({property: "projectionAngle"});
+    uiUtil.bindNumberProperty({property: "projectionAspect"});
+    uiUtil.bindNumberProperty({property: "drawIterationTime"});
 
-const modelSelection = document.getElementById("model-selection"); 
+    uiUtil.bindBooleanProperty({property: "drawFaces"});
+    uiUtil.bindBooleanProperty({property:"drawEdges"});
+
+    uiUtil.bindColorProperty({property: "edgeColor"});
+
+    uiUtil.bindVectorProperty({property: "selectedRenderObject.translation", inputName: "offset"});
+    uiUtil.bindVectorProperty({property: "selectedRenderObject.euler", inputName: "rotation", onSet: () => state.updateRotation()});
+    uiUtil.bindVectorProperty({property: "selectedRenderObject.renderData.objectCenter", inputName: "center"});
+    uiUtil.bindVectorProperty({property: "lightDirection"});
+
+    uiUtil.bindColorProperty({property: "lightColor"});
+    uiUtil.bindColorProperty({property: "modelColor"});
+    uiUtil.bindColorProperty({property: "backgroundColor"});
+uiUtil.endPropertyBinding();
+
+// load the default selected object
+const modelSelection = document.getElementById("model-selection");
 modelSelection.addEventListener("change", () => fetchObject(modelSelection.value)); 
-
-bindNumberProperty(state, "projection-angle", "projectionAngle");
-bindNumberProperty(state, "aspect-angle", "projectionAspect");
-bindNumberProperty(state, "draw-time", "drawIterationTime");
-
-bindNumberProperty(state, "offset-x", "selectedRenderObject.translation.x");
-bindNumberProperty(state, "offset-y", "selectedRenderObject.translation.y");
-bindNumberProperty(state, "offset-z", "selectedRenderObject.translation.z");
-
-bindNumberProperty(state, "rotation-x", "selectedRenderObject.euler.x", () => state.updateRotation());
-bindNumberProperty(state, "rotation-y", "selectedRenderObject.euler.y", () => state.updateRotation());
-bindNumberProperty(state, "rotation-z", "selectedRenderObject.euler.z", () => state.updateRotation());
-
-bindNumberProperty(state, "center-x", "selectedRenderObject.renderData.objectCenter.x");
-bindNumberProperty(state, "center-y", "selectedRenderObject.renderData.objectCenter.y");
-bindNumberProperty(state, "center-z", "selectedRenderObject.renderData.objectCenter.z");
-
-bindNumberProperty(state, "light-x", "lightDirection.x");
-bindNumberProperty(state, "light-y", "lightDirection.y");
-bindNumberProperty(state, "light-z", "lightDirection.z");
-
-bindNumberProperty(state, "light-r", "lightColor.r");
-bindNumberProperty(state, "light-g", "lightColor.g");
-bindNumberProperty(state, "light-b", "lightColor.b");
-
-bindNumberProperty(state, "ambient-r", "ambientLight.r");
-bindNumberProperty(state, "ambient-g", "ambientLight.g");
-bindNumberProperty(state, "ambient-b", "ambientLight.b");
-
-// load the default object
 fetchObject(modelSelection.value);

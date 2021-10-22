@@ -12,13 +12,7 @@ export class WaveFrontObject {
      * Array of Vector3s representing the vertices of an object
      */
     vertices = [];
-
-    /**
-     * Array of Vector3s representing the normals of the vertices on the faces (currently not used) 
-     *     */
-     normals = [];
-
-
+    
     /**
      * Array of indices, either of length 3 (triangles) or 4 (quads)
      * @type {Face[]}
@@ -34,13 +28,23 @@ export class WaveFrontObject {
         max : new Vector3(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE)
     };
 
-
+    /**
+     * Center of the model based on the its span. This may be modified
+     */
     objectCenter = new Vector3();
 
+    /**
+     * 
+     * @returns {Vector3} which is the bounds max - min
+     */
     boundsSpan() {
         return this.bounds.max.subVector(this.bounds.min);
     }
 
+    /**
+     * 
+     * @returns {Vector3} center of the bounds
+     */
     boundsCenter() {
         return this.bounds.min.addVector(this.boundsSpan().div(2));
     }
@@ -57,10 +61,6 @@ export class WaveFrontObject {
             if (line.startsWith("v ")) {
                 this.parseVector(line);
             }
-            else if (line.startsWith("vn ")) {
-                // ignore for now, we're not using this
-                // this.parseVertexNormals(line);
-            }
             else if (line.startsWith("f ")) {
                 this.parseFace(line);
             }
@@ -71,6 +71,11 @@ export class WaveFrontObject {
         return this;
     }
 
+    /**
+     * Reads a vector from the string adding it to the vertices and updating the bounds
+     * @param {string} line 
+     * @private
+     */
     parseVector(line) {
         let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'v' && s !== '\r');
         let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
@@ -81,22 +86,20 @@ export class WaveFrontObject {
         this.vertices.push(vector);
     }
 
-    parseVertexNormals(line) {
-        let numbers = line.split(' ').filter( s => s && s !== ' ' && s !== 'vn' && s !== '\r');
-        let vector = new Vector3(parseFloat(numbers[0]), parseFloat(numbers[1]), parseFloat(numbers[2]));
-
-        this.normals.push(vector);
-    }
-
+    /**
+     * Reads a face from the string adding it to the faces
+     * @param {string} line 
+     * @private
+     */
     parseFace(line) {
         const faceIndices = line.split(' ').filter( s => s && s !== '\r' && s !== 'f');
         if (faceIndices.length <= 4) {
-            const faceElements = faceIndices.map( str => this.parseFaceProperties(str) );
+            const vertexIndices = faceIndices.map( str => this.parseFaceIndex(str) );
 
-            const v1 = this.vertices[faceElements[0].vertex];
-            const v2 = this.vertices[faceElements[1].vertex];
-            const v3 = this.vertices[faceElements[2].vertex];
-            const v4 = faceElements.length === 4 ? this.vertices[faceElements[3].vertex] : null;
+            const v1 = this.vertices[vertexIndices[0]];
+            const v2 = this.vertices[vertexIndices[1]];
+            const v3 = this.vertices[vertexIndices[2]];
+            const v4 = vertexIndices.length === 4 ? this.vertices[vertexIndices[3]] : null;
 
             const v1_v2 = v2.subVector(v1).normalized();
             const v2_v3 = v3.subVector(v2).normalized();
@@ -107,19 +110,18 @@ export class WaveFrontObject {
                         ? MathX.triangleCentroid(v1, v2, v3)
                         : MathX.quadCentroid(v1, v2, v3, v4);
 
-            this.faces.push(new Face(faceElements.map( data => data.vertex), normal, centroid));
+            this.faces.push(new Face(vertexIndices, normal, centroid));
         }
     }
 
 
-    parseFaceProperties(input) {
-        var values = input.split('/');
-    
-        return {
-            vertex: parseInt(values[0]) - 1,
-            texture: values.length > 1 ? parseInt(values[1]) - 1 : -1,
-            // vertex normal - ignore for now
-            // normal: values.length > 2 ?  parseInt(values[2]) - 1 : -1
-        };
+    /**
+     * Reads the vertex index of a face from the string
+     * @private 
+     * @param {string} input 
+     * @returns {number} vertex index 
+     */
+    parseFaceIndex(input) {
+        return parseInt(input.split('/')[0] - 1);
     }    
 }

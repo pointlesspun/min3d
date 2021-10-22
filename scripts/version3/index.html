@@ -19,11 +19,14 @@
                 <div class="options-container">
                     <div class="options-labels-container">
                         <span class="option-label">Select model:</span>
-                        <span class="option-label">Draw time:</span>
+                        <span class="option-label">Draw Iteration(ms):</span>
+                        <span class="option-label">Draw faces/edges:</span>
+                        <span class="option-label">Edge color:</span>                       
                         <span class="option-label">Fov/Aspect:</span>
                         <span class="option-label">Camera pos:</span>
                         <span class="option-label">Rotation:</span>
                         <span class="option-label">Obj Center:</span>
+                        <span class="option-label">Background:</span>
                         <span class="option-label">Light direction:</span>
                         <span class="option-label">Light color:</span>
                         <span class="option-label">Model color:</span>
@@ -43,64 +46,86 @@
                                         * Male: nixor@https://free3d.com
                                     -->
 
-                                    <option value="cube.obj: Cube by pressing 'save' after Blender starts..." selected>Cube</option>
+                                    <option value="cube.obj: Cube by pressing 'save' after Blender starts...">Cube</option>
                                     <option value="male.obj: Male model by nixor@free3d.com">Male</option>
                                     <option value="skull.obj: Skull by printable_models@free3d.com">Skull</option>
                                     <option value="suzanne2.obj: Suzanne, Blender's mascot Blender.org">Suzanne</option>
-                                    <option value="teapot.obj: Utah teapot by Martin Newell">Teapot</option>
+                                    <option value="teapot.obj: Utah teapot by Martin Newell" selected>Teapot</option>
                                     <option value="beetle.obj: VW Beetle by dikiachmadp@free3d.com">VW Beetle</option>
                                 </select>
                             </div>
 
+                            <!-- Draw time-->
                             <div class="option">
-                                <input type="number" id="draw-time" class="number-field" min="0">
+                                <input type="number" id="drawIterationTime" class="number-field" min="0">
                             </div>
 
+                            <!-- Draw faces / edges -->
                             <div class="option">
-                                <input type="number" id="projection-angle" class="number-field" min="1" max="179">
-                                <input type="number" id="aspect-angle" class="number-field" min="0.25" max="10" step="0.25">    
+                                <input type="checkbox" id="drawFaces" name="drawFaces" checked>
+                                <input type="checkbox" id="drawEdges" name="drawEdges" checked>
+                            </div>
+                            
+                            <!-- Edge color -->
+                            <div class="option">
+                                <input type="number" id="edgeColor.r" class="number-field" step="5" min="0" max="255"> 
+                                <input type="number" id="edgeColor.g" class="number-field" step="5" min="0" max="255"> 
+                                <input type="number" id="edgeColor.b" class="number-field" step="5" min="0" max="255"> 
+                            </div>
+
+                            <!-- projection -->
+                            <div class="option">
+                                <input type="number" id="projectionAngle" class="number-field" min="1" max="179">
+                                <input type="number" id="projectionAspect" class="number-field" min="0.25" max="10" step="0.25">    
                             </div>
 
                             <!-- Camera position -->
                             <div class="option">
-                                <input type="number" id="offset-x" class="number-field" step="0.25"> 
-                                <input type="number" id="offset-y" class="number-field" step="0.25"> 
-                                <input type="number" id="offset-z" class="number-field" step="0.25"> 
+                                <input type="number" id="offset.x" class="number-field" step="0.25"> 
+                                <input type="number" id="offset.y" class="number-field" step="0.25"> 
+                                <input type="number" id="offset.z" class="number-field" step="0.25"> 
                             </div>
 
                             <!-- Object rotation -->
                             <div class="option">
-                                <input type="number" id="rotation-x" class="number-field" step="5" > 
-                                <input type="number" id="rotation-y" class="number-field" step="5"> 
-                                <input type="number" id="rotation-z" class="number-field" step="5"> 
+                                <input type="number" id="rotation.x" class="number-field" step="5" > 
+                                <input type="number" id="rotation.y" class="number-field" step="5"> 
+                                <input type="number" id="rotation.z" class="number-field" step="5"> 
                             </div>
 
                             <!-- Object center -->
                             <div class="option">
-                                <input type="number" id="center-x" class="number-field" step="1" > 
-                                <input type="number" id="center-y" class="number-field" step="1"> 
-                                <input type="number" id="center-z" class="number-field" step="1"> 
+                                <input type="number" id="center.x" class="number-field" step="1" > 
+                                <input type="number" id="center.y" class="number-field" step="1"> 
+                                <input type="number" id="center.z" class="number-field" step="1"> 
+                            </div>
+
+                            <!-- Background color -->
+                            <div class="option">
+                                <input type="number" id="backgroundColor.r" class="number-field" step="0.2" > 
+                                <input type="number" id="backgroundColor.g" class="number-field" step="0.2"> 
+                                <input type="number" id="backgroundColor.b" class="number-field" step="0.2"> 
                             </div>
 
                             <!-- Light position -->
                             <div class="option">
-                                <input type="number" id="light-x" class="number-field" step="0.2" > 
-                                <input type="number" id="light-y" class="number-field" step="0.2"> 
-                                <input type="number" id="light-z" class="number-field" step="0.2"> 
+                                <input type="number" id="lightDirection.x" class="number-field" step="0.2" > 
+                                <input type="number" id="lightDirection.y" class="number-field" step="0.2"> 
+                                <input type="number" id="lightDirection.z" class="number-field" step="0.2"> 
                             </div>
 
                             <!-- Light color -->
                             <div class="option">
-                                <input type="number" id="light-r" class="number-field" step="10" min="0" max="255"> 
-                                <input type="number" id="light-g" class="number-field" step="10" min="0" max="255"> 
-                                <input type="number" id="light-b" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="lightColor.r" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="lightColor.g" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="lightColor.b" class="number-field" step="10" min="0" max="255"> 
                             </div>
 
-                            <!-- Ambient color -->
+                            <!-- Model color -->
                             <div class="option">
-                                <input type="number" id="ambient-r" class="number-field" step="10" min="0" max="255"> 
-                                <input type="number" id="ambient-g" class="number-field" step="10" min="0" max="255"> 
-                                <input type="number" id="ambient-b" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="modelColor.r" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="modelColor.g" class="number-field" step="10" min="0" max="255"> 
+                                <input type="number" id="modelColor.b" class="number-field" step="10" min="0" max="255"> 
                             </div>
 
                         </select>

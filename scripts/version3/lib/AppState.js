@@ -3,9 +3,8 @@ import { Quaternion } from "./Quaternion.js";
 import { RenderObject } from "./RenderObject.js";
 import { Vector3 } from "./Vector3.js";
 
-
-
 export class Appstate {
+
     /** A container to store the render objects */
     renderObjects = {};
 
@@ -24,13 +23,47 @@ export class Appstate {
     /** Max time alotted to a single draw iteration, if zero or negative each iteration can take as much time as it wants. */
     drawIterationTime = 50;
 
-    ambientLight = new Color(100, 100, 100);
+    /**
+     * Color applied to the model
+     * @type {Color}
+     */
+    modelColor = new Color(100, 100, 100);
 
+    /**
+     * Direction of the light used in flat shading
+     * @type {Vector3}
+     */
     lightDirection  = new Vector3(1, 0, 0);
 
+    /**
+     * Color of the directional light
+     * @type {Color}
+     */
     lightColor = new Color(100, 100, 100);
 
+    /** 
+     * Background or color used to clear the canvas
+     * @type {Color}
+     */
     backgroundColor = new Color(20, 20, 65);
+
+    /**
+     * Setting whether or not solid polygons need to be drawn
+     * @type {boolean}
+     */
+    drawFaces = true;
+
+    /**
+     * Setting whether or not polygons' edges need to be drawn (wireframes)
+     * @type {boolean}
+     */
+    drawEdges = false;
+
+    /**
+     * Color of the edges (wireframe)
+     * @type {Color}
+     */
+    edgeColor = new Color(255, 180, 50);
 
     /**
      * Sets the selected model. If the model wasn't selected before, stores it in memory.

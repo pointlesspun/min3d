@@ -1,11 +1,24 @@
 // various utilities to help out with the UI 
-
-export const uiUtilConfig = {
-    defaultPostUpdateFunction : null
+export const config = {
+    defaultPostUpdateFunction : null,
+    defaultBindingObject: null
 }
 
 /** Ui elements which have been associated with certain properties and need to be updated from time to time */
 const uiRefreshFunctions = [];
+
+export function beginPropertyBinding(obj, defaultPostUpdate) {
+    config.defaultBindingObject = obj;
+
+    if (defaultPostUpdate) {
+        config.defaultPostUpdateFunction = defaultPostUpdate;
+    }
+}
+
+export function endPropertyBinding() {
+    config.defaultBindingObject = null;
+}
+
 
 /**
  * Set the value of a property of the given object
@@ -44,21 +57,24 @@ export function updateUI() {
  * @param {*} propertyName 
  * @param {*} onSet 
  */
-export function bindCheckBox(obj, checkboxName, propertyName, onSet) {
-    const element = document.getElementById(checkboxName);
+export function bindBooleanProperty({obj, checkboxName, property, onSet}) {
+    const element = document.getElementById(property || checkboxName);
+
+    obj = obj || config.defaultBindingObject;
+
     element.addEventListener("click", () => {
-        setPath(obj, propertyName, element.checked);
+        setPath(obj, property, element.checked);
        
         if (onSet) {
             onSet();
         }
 
-        if (uiUtilConfig.defaultPostUpdateFunction) {
-            uiUtilConfig.defaultPostUpdateFunction();
+        if (config.defaultPostUpdateFunction) {
+            config.defaultPostUpdateFunction();
         }
     });
     uiRefreshFunctions.push( () => {
-        element.checked = resolvePath(obj, propertyName);
+        element.checked = resolvePath(obj, property);
     });
 }
 
@@ -69,26 +85,48 @@ export function bindCheckBox(obj, checkboxName, propertyName, onSet) {
  * @param {*} propertyName 
  * @param {*} onSet called after the value has changed
  */
-export function bindNumberProperty(obj, numberInput, propertyName, onSet) {
-    const element = document.getElementById(numberInput);
+export function bindNumberProperty({obj, numberInput, property, onSet}) {
+    const element = document.getElementById(numberInput || property);
+    
+    obj = obj || config.defaultBindingObject;
+
+    if (!element) {
+        console.log(`cannot resolve uiElement with names: ${numberInput} or ${property}.`)
+    }
+
     element.addEventListener("change", 
         () => updateNumberField(element, 
                 (v) => { 
-                    setPath(obj, propertyName, v);
+                    setPath(obj, property, v);
                                        
                     if (onSet) {
                         onSet();
                     }
 
-                    if (uiUtilConfig.defaultPostUpdateFunction) {
-                        uiUtilConfig.defaultPostUpdateFunction();
+                    if (config.defaultPostUpdateFunction) {
+                        config.defaultPostUpdateFunction();
                     }
  
                  }, 
-                 () => resolvePath(obj, propertyName)));    
+                 () => resolvePath(obj, property)));    
     uiRefreshFunctions.push( () => {
-        element.value = resolvePath(obj, propertyName);
+        element.value = resolvePath(obj, property);
     });
+}
+
+/**
+ */
+ export function bindVectorProperty({obj, property, inputName, onSet, postFixCharacters="xyz"}) {
+    inputName = inputName  || property;
+
+    for (let i = 0; i < postFixCharacters.length; i++) {
+        const postFixChar = postFixCharacters[i];
+        bindNumberProperty({obj, numberInput: `${inputName}.${postFixChar}`, property: `${property}.${postFixChar}`, onSet});
+    }
+}
+
+export function bindColorProperty({obj, property, inputName, onSet, postFixCharacters="rgb"}) {
+    bindVectorProperty({obj, property, inputName, onSet, postFixCharacters});
 }
 
 /**
