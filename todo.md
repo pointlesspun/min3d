@@ -21,12 +21,17 @@ v2.0
 - [done] fetch loading progress
 - [done] add switch for draw incrementally / immediate
 - [done] add version selection from index.html
-- document / fix links and so on
+- [done] document / fix links and so on
 
 v3.0
-	- sort faces by distance from camera
-	- draw faces (polygons)
-	- add basic directional light model
+- [done] sort faces by distance from camera
+- [done] draw faces (polygons)
+- [done] add basic directional light model
+- [done] weird bug with faces being culled at some angles coming from one direction but not from another...
+	- [done] make camera position actual be applied correctly in toWorld
+	- [done] add center as editable property
+	- [done] try to reproduce the bug - turned out to be a "feature" of the data -- some quads were bend which meant they had two normals... that doesn't play nice when the code expects one normal. "Fixed" this by replacing quads with tris in Blender.
+- document
 
 v4.0
 - clip points against view frustrum
