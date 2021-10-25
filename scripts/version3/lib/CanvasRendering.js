@@ -35,10 +35,26 @@ export class CanvasRendering {
      * @returns 
      */
     clear(r,g,b) {
-        this.setColor(r || 20, g || 20, b || 60);
+        this.setColor(this.validate(r, 20), this.validate(g, 20), this.validate(b, 60));
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height );
         
         return this;
+    }
+
+
+    /**
+     * Return a valid rgb color value
+     * @private
+     * @param {number} value 
+     * @param {number} defaultValue 
+     * @returns 
+     */
+    validate(value, defaultValue) {
+        if (value === null || typeof value === 'undefined') {
+            return defaultValue;
+        }
+
+        return Math.max(0, Math.min(value, 255));
     }
 
     /**
