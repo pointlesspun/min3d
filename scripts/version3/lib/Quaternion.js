@@ -15,10 +15,12 @@ export class Quaternion {
         this.w = w || 1;
     }
 
+    /** Returns the magnitude / length of the quaternion */
     magnitude() {
         return Math.sqrt(this.x*this.x + this.y * this.y + this.z * this.z + this.w * this.w);
     }
 
+    /** Returns a new normalized version of this */
     normalized() {
         var mag = this.magnitude();
 

@@ -1,12 +1,28 @@
 // various utilities to help out with the UI 
+
+/**
+ * General configuration used by different functions
+ */
 export const config = {
+    /** 
+     * Function which will be called after a value of a bound ui-elements has been changed
+     */
     defaultPostUpdateFunction : null,
+
+    /**
+     * Current object which the properties will be bound to ui-elements
+     */
     defaultBindingObject: null
 }
 
 /** Ui elements which have been associated with certain properties and need to be updated from time to time */
 const uiRefreshFunctions = [];
 
+/**
+ * Starts binding by setting the default object and postupdate. Not necessary but makes subsequent binding calls slightly easier. 
+ * @param {any} obj the object of which the properties will be changed
+ * @param {function} defaultPostUpdate a function with the signature func() called after an update to a property
+ */
 export function beginPropertyBinding(obj, defaultPostUpdate) {
     config.defaultBindingObject = obj;
 
@@ -15,8 +31,12 @@ export function beginPropertyBinding(obj, defaultPostUpdate) {
     }
 }
 
+/**
+ * Clears this config's postupdate and default binding object.
+ */
 export function endPropertyBinding() {
     config.defaultBindingObject = null;
+    config.defaultPostUpdateFunction = null;
 }
 
 
@@ -44,7 +64,7 @@ const resolvePath = (object, path, defaultValue) =>
     path.split('.').reduce((o, p) => o ? o[p] : defaultValue, object)
 
 
-/** Calls all refresh functions  */   
+/** Calls all refresh functions on all bound ui objects */   
 export function updateUI() {
     uiRefreshFunctions.forEach(refresh => refresh());
 }
@@ -59,6 +79,7 @@ export function updateUI() {
  */
 export function bindBooleanProperty({obj, checkboxName, property, onSet}) {
     const element = document.getElementById(property || checkboxName);
+    const postUpdate = config.defaultPostUpdateFunction;
 
     obj = obj || config.defaultBindingObject;
 
@@ -69,8 +90,8 @@ export function bindBooleanProperty({obj, checkboxName, property, onSet}) {
             onSet();
         }
 
-        if (config.defaultPostUpdateFunction) {
-            config.defaultPostUpdateFunction();
+        if (postUpdate) {
+            postUpdate();
         }
     });
     uiRefreshFunctions.push( () => {
@@ -87,9 +108,10 @@ export function bindBooleanProperty({obj, checkboxName, property, onSet}) {
  */
 export function bindNumberProperty({obj, numberInput, property, onSet}) {
     const element = document.getElementById(numberInput || property);
-    
-    obj = obj || config.defaultBindingObject;
+    const postUpdate = config.defaultPostUpdateFunction;
 
+    obj = obj || config.defaultBindingObject;
+    
     if (!element) {
         console.log(`cannot resolve uiElement with names: ${numberInput} or ${property}.`)
     }
@@ -103,8 +125,8 @@ export function bindNumberProperty({obj, numberInput, property, onSet}) {
                         onSet();
                     }
 
-                    if (config.defaultPostUpdateFunction) {
-                        config.defaultPostUpdateFunction();
+                    if (postUpdate) {
+                        postUpdate();
                     }
  
                  }, 
@@ -115,6 +137,7 @@ export function bindNumberProperty({obj, numberInput, property, onSet}) {
 }
 
 /**
+ * Binds a vector property of the given object to the input field with the inputName
  */
  export function bindVectorProperty({obj, property, inputName, onSet, postFixCharacters="xyz"}) {
     inputName = inputName  || property;
@@ -125,6 +148,9 @@ export function bindNumberProperty({obj, numberInput, property, onSet}) {
     }
 }
 
+/**
+ * Binds a color property of the given object to the input field with the inputName
+ */
 export function bindColorProperty({obj, property, inputName, onSet, postFixCharacters="rgb"}) {
     bindVectorProperty({obj, property, inputName, onSet, postFixCharacters});
 }

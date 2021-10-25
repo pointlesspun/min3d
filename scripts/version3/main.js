@@ -62,6 +62,12 @@ function drawModel() {
             }
         };
         
+        const drawDescription = () => {
+            // draw the description of the model at the bottom of the screen
+            appRendering.setColor(180, 230, 250);
+            appRendering.drawText(30, screenHeight - 50, model.description);
+        };
+
         // prepare the model renderer
         modelRenderer.initialize(model, projection, state.lightColor, state.lightDirection, state.modelColor)
             .filterVisibleFaces()
@@ -74,24 +80,23 @@ function drawModel() {
                 if (modelRenderer.drawIteratively(drawFunction, state.drawIterationTime)) {
                     clearTimeout(state.drawUpdateHandle);
                     state.drawUpdateHandle = null;
-                    // draw the description
-                    appRendering.setColor(180, 230, 250);
-                    appRendering.drawText(30, screenHeight - 50, model.description);
+                    drawDescription();
                 } else {
                     state.drawUpdateHandle = setTimeout(intervalFunction, state.drawIterationTime);
                 }
             };
 
-            if (!modelRenderer.drawIteratively(drawFunction, state.drawIterationTime)) {
+            if (modelRenderer.drawIteratively(drawFunction, state.drawIterationTime)) {
+                drawDescription();
+            }
+            else {
                 state.drawUpdateHandle = setTimeout(intervalFunction, state.drawIterationTime);
             }
             
         } else {
             // draw the model in one go
             modelRenderer.draw(drawFunction);
-             // draw the description
-            appRendering.setColor(180, 230, 250);
-            appRendering.drawText(30, screenHeight - 50, model.description);
+            drawDescription();
         }      
     }
 }
