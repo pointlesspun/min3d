@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>min3d demo</title>
+        <link rel="stylesheet" href="../../styles.css">
+        <script type="module" src="main.js"></script>
+    </head>
+
+    <body>
+        <div class="text-body">
+            <span><h1>Rasterization demo, Version 4.0</h1></span>
+            
+            <div class="canvas-options-container">
+                <div class="canvas-container">
+                    <canvas id="canvas" width="1024" height="786">
+                    </canvas>
+                </div>
+                <div class="options-container">
+                    <div class="options-labels-container">
+                        <span class="option-label">Resolution:</span>
+                        <span class="option-label">Color multiplier:</span>
+                        <span class="option-label">Max scanline width:</span>
+                        <span class="option-label">Update interval:</span>                       
+                        <span class="option-label"><a href="https://github.com/pointlesspun/min3d/tree/main/scripts/version1">Code</a> </span>
+                    </div>
+
+                    <div class="options-values-container">
+
+                            <!-- Resolution-->
+                            <div class="option">
+                                <input type="number" id="resolution.x" class="number-field" step="10"> 
+                                <input type="number" id="resolution.y" class="number-field" step="10"> 
+                            </div>
+
+                            <!-- Color multiplier -->
+                            <div class="option">
+                                <input type="number" id="colorMultiplier.x" class="number-field" step="0.1" min="0" max="1"> 
+                                <input type="number" id="colorMultiplier.y" class="number-field" step="0.1" min="0" max="1"> 
+                                <input type="number" id="colorMultiplier.z" class="number-field" step="0.1" min="0" max="1"> 
+                            </div>
+                            
+                            <!-- Scan line width-->
+                            <div class="option">
+                                <input type="number" id="maxScanlineWidth" class="number-field" min="1">
+                            </div>
+
+                            <!-- Update interval-->
+                            <div class="option">
+                                <input type="number" id="updateInterval" class="number-field" min="10" step="10">
+                            </div>
+                        </select>
+                    </div>
+                </div>
+            </div>
+       </div>
+    </body>
+</html>
