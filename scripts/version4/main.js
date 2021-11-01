@@ -2,9 +2,15 @@ import { Appstate } from "./lib/AppState.js";
 import { Color } from "./lib/Color.js";
 import { Rasterization } from "./lib/Rasterization.js";
 import { definedOrDefault } from "./lib/types.js";
+
 import * as uiUtil from "./lib/ui-util.js";
 
+/** Current user settings */
 const appState = new Appstate();
+
+/** Rasterizer to the canvas */
+let rasterizer = new Rasterization("canvas", appState.resolution.x, appState.resolution.y);
+
 
 /**
  * Fill a buffer with scanlines made up of colorized lines of randomlength.
@@ -14,6 +20,7 @@ function fillCanvasWithScanlines(maxLength) {
 
     const w = rasterizer.bufferWidth;
     const h = rasterizer.bufferHeight;
+    
     maxLength = definedOrDefault(maxLength, w);
 
     for (let y = 0; y < h; y++) {
@@ -27,17 +34,24 @@ function fillCanvasWithScanlines(maxLength) {
             x += scanlineWidth;
         } 
     }    
+
+    return rasterizer;
 }
 
+/**
+ * Update callback, fills the canvas, renders it to the canvas and switches the buffer
+ */
 function update() {
-    fillCanvasWithScanlines(appState.maxScanlineWidth);
-    rasterizer.switchBuffer();
-    rasterizer.render();
+
+    fillCanvasWithScanlines(appState.maxScanlineWidth)
+        .render()
+        .switchBuffer();
+    
     setTimeout(update, appState.updateInterval);
 }
 
 // Hook up the combo list event listener
-uiUtil.beginPropertyBinding(appState, () => {});
+uiUtil.beginPropertyBinding(appState);
     uiUtil.bindVectorProperty({property: "resolution", onSet: () => {
         rasterizer = new Rasterization("canvas", appState.resolution.x, appState.resolution.y);
     }});
@@ -47,9 +61,6 @@ uiUtil.beginPropertyBinding(appState, () => {});
     uiUtil.bindNumberProperty({property: "updateInterval"});
 
 uiUtil.endPropertyBinding();
-
-
-let rasterizer = new Rasterization("canvas", appState.resolution.x, appState.resolution.y);
-setTimeout(update, appState.updateInterval);
-
 uiUtil.updateUI();
+
+setTimeout(update, appState.updateInterval);

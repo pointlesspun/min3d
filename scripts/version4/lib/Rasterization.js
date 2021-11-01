@@ -105,8 +105,7 @@ export class Rasterization {
         const x = Math.floor(MathX.clamp(startX, 0, this.bufferWidth-1));
         const y = Math.floor(MathX.clamp(startY, 0, this.bufferHeight-1));
         const len = Math.floor(MathX.clamp(startX + length, 0, this.bufferWidth) - startX);
-        const bufferIdx = this.getWriteBuffer();
-        const buffer = this.buffers[bufferIdx];
+        const buffer = this.buffers[this.currentBufferIdx];
         const rasterElement = buffer[this.getBufferIndex(x, y)];
          
         rasterElement.set(color, 0, len);
@@ -165,15 +164,7 @@ export class Rasterization {
     getBufferIndex(x, y) {
         return x + y * this.bufferWidth;
     }
-
-    /**
-     * Returns the next buffer in line to be written to the canvas
-     * @private
-     */
-    getWriteBuffer() {
-        return (this.currentBufferIdx +  1) % this.buffers.length;
-    }
-
+    
     /**
      * Create a w x h array of RasterElements
      * @private
