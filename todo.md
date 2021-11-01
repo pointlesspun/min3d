@@ -31,13 +31,13 @@ v3.0
 	- [done] make camera position actual be applied correctly in toWorld
 	- [done] add center as editable property
 	- [done] try to reproduce the bug - turned out to be a "feature" of the data -- some quads were bend which meant they had two normals... that doesn't play nice when the code expects one normal. "Fixed" this by replacing quads with tris in Blender.
-- document
+- [done] document
 
 v4.0
 - clip points against view frustrum
     - extract view frustrum from view matrix
-	- add z buffer
-	- add rasterization
+- add z buffer
+- add rasterization
 
 v5.0 
 	- self shadowing
